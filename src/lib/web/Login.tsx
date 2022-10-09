@@ -3,6 +3,7 @@ import { Button, Card, CardContent, FormControl, IconButton, Input, InputAdornme
 import { Box } from "@mui/system";
 import { useState } from "react";
 import { WebDAV } from "../cryptomator/storage-adapters/WebDAV";
+import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 
 export function Login(props: {setClient: (client: WebDAV) => void}){
 
@@ -10,6 +11,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [querying, setQuerying] = useState(false);
+	const [open, setOpen] = useState(false);
 
 	const login = () => {
 
@@ -30,7 +32,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 								onChange={(e) => setUrl(e.currentTarget.value)}
 								endAdornment={
 									<InputAdornment position='end'>
-										<IconButton><Help/></IconButton>
+										<IconButton onClick={() => setOpen(true)}><Help/></IconButton>
 									</InputAdornment>
 								}
 							/>
@@ -41,6 +43,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 					</Stack>
 				</CardContent>
 			</Card>
+			<UrlHelperDialog open={open} close={() => setOpen(false)} setUrl={setUrl}/>
 		</Box>
-	)
+	);
 }
