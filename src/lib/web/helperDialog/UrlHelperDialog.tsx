@@ -1,10 +1,23 @@
-import { Dialog, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button, DialogActions, DialogContent, Box } from "@mui/material";
+import { Dialog, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button, DialogActions, DialogContent, Box, DialogContentText } from "@mui/material";
 import { useState } from "react";
+import { Nextcloud } from "./Nextcloud";
 
 export function UrlHelperDialog(props: {open: boolean, close: () => void, setUrl: (url: string) => void}){
 
 	const [prov, setProv] = useState('');
 	const [url, setUrl] = useState('');
+
+	const getProviderForm = () => {
+		let form;
+		if (prov === 'Nextcloud') form = <Nextcloud setUrl={setUrl}/>
+		else return <></>;
+		return (
+			<Box mt={2}>
+				{form}
+				<DialogContentText mt={2}>WebDAV URL: {url}</DialogContentText>
+			</Box>
+		)
+	}
 
 	return (
 		<Dialog open={props.open} onClose={props.close}>
@@ -22,13 +35,14 @@ export function UrlHelperDialog(props: {open: boolean, close: () => void, setUrl
 						</Select>
 					</FormControl>
 				</Box>
+				{getProviderForm()}
 			</DialogContent>
 			<DialogActions>
+				<Button onClick={props.close}>Cancel</Button>
 					<Button onClick={() => {
 						props.setUrl(url);
 						props.close();
 					}}>Confirm</Button>
-					<Button onClick={props.close}>Cancel</Button>
 				</DialogActions>
 		</Dialog>
 	)
