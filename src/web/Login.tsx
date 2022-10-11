@@ -1,7 +1,7 @@
 import { Help } from "@mui/icons-material";
 import { Button, Card, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 
@@ -13,8 +13,16 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 	const [querying, setQuerying] = useState(false);
 	const [open, setOpen] = useState(false);
 
-	const login = () => {
+	const login = async (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const client = new WebDAV(url, username, password);
+		try {
+			await client.list('/'); // Test query
+			props.setClient(client);
+		} catch (e) {
 
+		}
+		
 	}
 
 	return (
