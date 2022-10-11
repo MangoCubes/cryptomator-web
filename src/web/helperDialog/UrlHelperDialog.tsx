@@ -39,11 +39,11 @@ export function UrlHelperDialog(props: {open: boolean, close: () => void, setUrl
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.close}>Cancel</Button>
-					<Button onClick={() => {
-						props.setUrl(url);
-						props.close();
-					}}>Confirm</Button>
-				</DialogActions>
+				<Button disabled={url === ''} onClick={() => {
+					props.setUrl(url);
+					props.close();
+				}}>Confirm</Button>
+			</DialogActions>
 		</Dialog>
 	)
 }

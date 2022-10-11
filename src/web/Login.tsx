@@ -4,7 +4,6 @@ import { Box } from "@mui/system";
 import { FormEvent, useState } from "react";
 import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
-import { AxiosError } from "axios";
 
 enum LoginErr {
 	Incorrect,
