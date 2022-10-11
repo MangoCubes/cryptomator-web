@@ -1,7 +1,7 @@
 import { Logout } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon } from "@mui/material";
 
-export function Sidebar(){
+export function Sidebar(props: {logout: () => void}){
 
 	const drawer = 240;
 
@@ -16,7 +16,7 @@ export function Sidebar(){
 		<Box sx={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
 			<Box sx={{flex: 1}}/>
 			<List sx={{ width: drawer, overflow: 'auto'}}>
-				<ListItemButton>
+				<ListItemButton onClick={props.logout}>
 					<ListItemIcon>
 						<Logout/>
 					</ListItemIcon>

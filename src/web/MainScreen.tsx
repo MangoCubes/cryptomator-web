@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
+import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { Login } from "./Login";
 import { Sidebar } from "./sidebar/Sidebar";
 
@@ -10,7 +11,8 @@ export function MainScreen(){
 	if(client){
 		return (
 			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-				<Sidebar/>
+				<Sidebar logout={() => setClient(null)}/>
+				<FileBrowser client={client}/>
 			</Box>
 		)
 	} else {
