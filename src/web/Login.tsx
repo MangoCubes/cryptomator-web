@@ -12,8 +12,8 @@ enum LoginErr {
 
 export function Login(props: {setClient: (client: WebDAV) => void}){
 
-	const [url, setUrl] = useState('');
-	const [username, setUsername] = useState('');
+	const [url, setUrl] = useState(sessionStorage.getItem('url') ?? '');
+	const [username, setUsername] = useState(sessionStorage.getItem('username') ?? '');
 	const [password, setPassword] = useState('');
 	const [querying, setQuerying] = useState(false);
 	const [open, setOpen] = useState(false);
@@ -26,6 +26,8 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 		const client = new WebDAV(url, username, password);
 		try {
 			await client.list('/'); // Test query
+			sessionStorage.setItem('url', url);
+			sessionStorage.setItem('username', username);
 			props.setClient(client);
 		} catch (e) {
 			let err = LoginErr.Unknown;
