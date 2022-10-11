@@ -12,11 +12,8 @@ export class WebDAV implements StorageAdapter{
 	}
 
 	async list(prefix: string): Promise<StorageObject[]> {
+		const items = await this.listItems(prefix);
 		const itemList: StorageObject[] = [];
-		const res = await this.client.getDirectoryContents(prefix);
-		let items: FileStat[];
-		if(Array.isArray(res)) items = res;
-		else items = res.data;
 		for(const item of items){
 			itemList.push({
 				key: item.filename,
@@ -26,6 +23,14 @@ export class WebDAV implements StorageAdapter{
 		}
 		return itemList;
 	}
+
+	async listItems(prefix: string): Promise<FileStat[]>{
+		const itemList: StorageObject[] = [];
+		const res = await this.client.getDirectoryContents(prefix);
+		if(Array.isArray(res)) return res;
+		else return res.data;
+	}
+
 	readFile(key: string): Promise<StorageObject> {
 		throw new Error("Method not implemented.");
 	}
