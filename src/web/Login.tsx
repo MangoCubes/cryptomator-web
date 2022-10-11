@@ -2,7 +2,7 @@ import { Help } from "@mui/icons-material";
 import { Button, Card, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
-import { WebDAV } from "../cryptomator/storage-adapters/WebDAV";
+import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 
 export function Login(props: {setClient: (client: WebDAV) => void}){

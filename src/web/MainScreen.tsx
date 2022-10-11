@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { WebDAV } from "../cryptomator/storage-adapters/WebDAV";
+import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
 import { Login } from "./Login";
 
 export function MainScreen(){
