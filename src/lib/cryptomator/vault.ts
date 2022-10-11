@@ -171,7 +171,7 @@ export default class Vault {
     const currentNodes = await this.storageAdapter.list(path);
 
     for (const n of currentNodes) {
-      const node = new Node(this, n.Key, dirId);
+      const node = new Node(this, n.key, dirId);
       nodes.push(node);
       if (node.isDir) {
         const dirId = await node.dirId();
@@ -183,7 +183,7 @@ export default class Vault {
 
   public async decryptFile(node: Node): Promise<Uint8Array> {
     const obj = await this.storageAdapter.readFile(node.path);
-    const data = obj.Data!;
+    const data = obj.data!;
 
     const headerNonce = data.slice(0, 16);
     const headerPayload = data.slice(16, 56);

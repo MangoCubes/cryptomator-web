@@ -19,9 +19,9 @@ export class WebDAV implements StorageAdapter{
 		else items = res.data;
 		for(const item of items){
 			itemList.push({
-				Key: item.filename,
-				Size: item.size,
-				LastModified: new Date(item.lastmod)
+				key: item.filename,
+				size: item.size,
+				lastModified: new Date(item.lastmod)
 			});
 		}
 		return itemList;

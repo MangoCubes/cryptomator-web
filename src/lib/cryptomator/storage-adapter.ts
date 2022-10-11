@@ -1,8 +1,8 @@
 export interface StorageObject {
-  Key: string;
-  Size?: number;
-  LastModified?: Date;
-  Data?: Uint8Array;
+  key: string;
+  size?: number;
+  lastModified?: Date;
+  data?: Uint8Array;
 }
 
 export interface StorageAdapter {
