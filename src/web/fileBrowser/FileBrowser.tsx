@@ -4,6 +4,7 @@ import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } fro
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
 import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
+import { VaultDialog } from "./VaultDialog";
 const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
 		if(params.row.type === 'parent') return <ArrowBack/>;
@@ -21,18 +22,21 @@ export function FileBrowser(props: {client: WebDAV}){
 	const [items, setItems] = useState<FileStat[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
+	const [open, setOpen] = useState(false);
 	
 	useEffect(() => {
 		loadItems(dir);
 	}, []);
 
 	const loadItems = async (absDir: string[]) => {
+		const temp = [...items];
 		try {
 			setQuerying(true);
+			setItems([]);
 			setItems(await props.client.listItems('/' + absDir.join('/')));
 			setDir(absDir);
 		} catch(e) {
-
+			setItems(temp);
 		} finally {
 			setQuerying(false);
 		}
@@ -117,11 +121,12 @@ export function FileBrowser(props: {client: WebDAV}){
 				/>
 			</Box>
 			<Zoom in={showButton()}>
-				<Fab variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
+				<Fab onClick={() => setOpen(true)} variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
 					<LockOpen/>
 					Unlock
 				</Fab>
 			</Zoom>
+			<VaultDialog open={open} close={() => setOpen(false)} decrypt={() => {}}/>
 		</Box>
 	)
 }
