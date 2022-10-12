@@ -25,17 +25,40 @@ export class WebDAV implements StorageAdapter{
 	}
 
 	async listItems(prefix: string): Promise<FileStat[]>{
-		const itemList: StorageObject[] = [];
 		const res = await this.client.getDirectoryContents(prefix);
 		if(Array.isArray(res)) return res;
 		else return res.data;
 	}
 
-	readFile(key: string): Promise<StorageObject> {
-		throw new Error("Method not implemented.");
+	async readFile(key: string): Promise<StorageObject> {
+		let res = await this.client.getFileContents(key);
+		if(typeof(res) !== 'string' && 'data' in res) res = res.data;
+		if(typeof(res) === 'string'){
+			return {
+				key: key,
+				data: new TextEncoder().encode(res)
+			};
+		} else {
+			let ab: Uint8Array;
+			if(res instanceof ArrayBuffer) ab = new Uint8Array(res);
+			else ab = res;
+			return {
+				key: key,
+				data: ab
+			};
+		}
 	}
-	readFileAsText(key: string): Promise<string> {
-		throw new Error("Method not implemented.");
+
+	async readFileAsText(key: string): Promise<string> {
+		let res = await this.client.getFileContents(key);
+		if(typeof(res) !== 'string' && 'data' in res) res = res.data;
+		if(typeof(res) === 'string') return res;
+		else {
+			let ab: Uint8Array;
+			if(res instanceof ArrayBuffer) ab = new Uint8Array(res);
+			else ab = res;
+			return new TextDecoder().decode(ab);
+		}
 	}
 	createDirectory(path: string, dirId: string): Promise<void> {
 		throw new Error("Method not implemented.");
