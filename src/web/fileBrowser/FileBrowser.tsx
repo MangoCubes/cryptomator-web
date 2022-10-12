@@ -1,10 +1,11 @@
 import { Box, AppBar, Toolbar, Typography } from "@mui/material";
-import { GridSelectionModel, DataGrid } from "@mui/x-data-grid";
+import { GridSelectionModel, DataGrid, GridRowParams } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
 import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
 
 const columns = [
+	{field: 'type', headerName: '', flex: 1},
 	{field: 'name', headerName: 'Name', flex: 3},
 ];
 
@@ -40,14 +41,29 @@ export function FileBrowser(props: {client: WebDAV}){
 		if (querying) return [];
 		else {
 			const rows = [];
+			if(dir.length){
+				rows.push(
+					{
+						id: 'parent',
+						name: 'Up one level',
+						type: 'parent'
+					}
+				);
+			}
 			for(const item of items){
 				rows.push({
 					id: item.filename,
-					name: item.basename
+					name: item.basename,
+					type: item.type
 				});
 			}
 			return rows;
 		}
+	}
+
+	const onRowClick = (r: GridRowParams) => {
+		if(r.row.type === 'parent') loadSubDir(null);
+		else if(r.row.type === 'directory') loadSubDir(r.row.name);
 	}
 
 	return (
@@ -59,7 +75,9 @@ export function FileBrowser(props: {client: WebDAV}){
 			</AppBar>
 			<Box m={1} sx={{flex: 1}}>
 				<DataGrid
-					onRowClick={(r) => loadSubDir(r.row.name)}
+					onRowClick={onRowClick}
+					disableSelectionOnClick
+					isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
 					columns={columns}
 					rows={getRows()}
 					loading={querying}
