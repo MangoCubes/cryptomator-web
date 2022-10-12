@@ -1,11 +1,16 @@
+import { ArrowBack, Folder, Article } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography } from "@mui/material";
-import { GridSelectionModel, DataGrid, GridRowParams } from "@mui/x-data-grid";
+import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
 import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
 
 const columns = [
-	{field: 'type', headerName: '', flex: 1},
+	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
+		if(params.row.type === 'parent') return <ArrowBack/>;
+		else if(params.row.type === 'directory') return <Folder/>;
+		else return <Article/>
+	}},
 	{field: 'name', headerName: 'Name', flex: 3},
 ];
 
