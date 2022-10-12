@@ -1,5 +1,5 @@
-import { ArrowBack, Folder, Article } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography } from "@mui/material";
+import { ArrowBack, Folder, Article, Refresh } from "@mui/icons-material";
+import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
@@ -9,7 +9,7 @@ const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
 		if(params.row.type === 'parent') return <ArrowBack/>;
 		else if(params.row.type === 'directory') return <Folder/>;
-		else return <Article/>
+		else return <Article/>;
 	}},
 	{field: 'name', headerName: 'Name', flex: 3},
 ];
@@ -40,6 +40,10 @@ export function FileBrowser(props: {client: WebDAV}){
 	const loadSubDir = async (subDir: string | null) => {
 		if (subDir === null) await loadItems(dir.slice(0, -1));
 		else await loadItems([...dir, subDir]);
+	}
+
+	const reload = async () => {
+		await loadItems(dir);
 	}
 
 	const getRows = () => {
@@ -76,6 +80,14 @@ export function FileBrowser(props: {client: WebDAV}){
 			<AppBar position='static'>
 				<Toolbar>
 					<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
+					<Box sx={{flex: 1}}/>
+					<Tooltip title='Refresh'>
+						<span>
+							<IconButton edge='end' onClick={reload} disabled={querying}>
+								<Refresh/>
+							</IconButton>
+						</span>
+					</Tooltip>
 				</Toolbar>
 			</AppBar>
 			<Box m={1} sx={{flex: 1}}>
