@@ -1,13 +1,14 @@
-import { ArrowBack, Folder, Article, Refresh } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip } from "@mui/material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key } from "@mui/icons-material";
+import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
 import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
-
 const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
 		if(params.row.type === 'parent') return <ArrowBack/>;
+		else if(params.row.name === 'masterkey.cryptomator') return <Key/>;
+		else if(params.row.name.endsWith('.c9r')) return <Lock/>;
 		else if(params.row.type === 'directory') return <Folder/>;
 		else return <Article/>;
 	}},
@@ -75,6 +76,16 @@ export function FileBrowser(props: {client: WebDAV}){
 		else if(r.row.type === 'directory') loadSubDir(r.row.name);
 	}
 
+	const showButton = () => {
+		let count = 0;
+		for (const i of items){
+			if(i.type === 'file' && i.basename === 'masterkey.cryptomator') count++;
+			else if(i.type === 'file' && i.basename === 'vault.cryptomator') count++;
+			else if(i.type === 'directory' && i.basename === 'd') count++;
+		}
+		return count === 3;
+	}
+
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
@@ -105,6 +116,12 @@ export function FileBrowser(props: {client: WebDAV}){
 					}}
 				/>
 			</Box>
+			<Zoom in={showButton()}>
+				<Fab variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
+					<LockOpen/>
+					Unlock
+				</Fab>
+			</Zoom>
 		</Box>
 	)
 }
