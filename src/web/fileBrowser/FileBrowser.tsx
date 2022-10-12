@@ -16,18 +16,24 @@ export function FileBrowser(props: {client: WebDAV}){
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	
 	useEffect(() => {
-		loadItems();
+		loadItems(dir);
 	}, []);
 
-	const loadItems = async () => {
+	const loadItems = async (absDir: string[]) => {
 		try {
 			setQuerying(true);
-			setItems(await props.client.listItems('/' + dir.join('/')));
+			setItems(await props.client.listItems('/' + absDir.join('/')));
+			setDir(absDir);
 		} catch(e) {
 
 		} finally {
 			setQuerying(false);
 		}
+	}
+
+	const loadSubDir = async (subDir: string | null) => {
+		if (subDir === null) await loadItems(dir.slice(0, -1));
+		else await loadItems([...dir, subDir]);
 	}
 
 	const getRows = () => {
@@ -53,6 +59,7 @@ export function FileBrowser(props: {client: WebDAV}){
 			</AppBar>
 			<Box m={1} sx={{flex: 1}}>
 				<DataGrid
+					onRowClick={(r) => loadSubDir(r.row.name)}
 					columns={columns}
 					rows={getRows()}
 					loading={querying}
