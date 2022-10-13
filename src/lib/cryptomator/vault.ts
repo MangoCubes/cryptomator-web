@@ -81,7 +81,7 @@ export default class Vault {
     const nodes = await this.storageAdapter.list(this.dir + path);
 
     return nodes.map((n: any) => {
-      return new Node(this, n.Key, dirId);
+      return new Node(this, n.key, dirId);
     });
   }
 

@@ -92,7 +92,7 @@ export function FileBrowser(props: {client: WebDAV}){
 	}
 
 	const decrypt = async (password: string) => {
-		const vault = new Vault(props.client, dir.join('/'));
+		const vault = new Vault(props.client, '/' + dir.join('/'));
 		await vault.open(password);
 		console.log(await vault.list(''));
 	}
