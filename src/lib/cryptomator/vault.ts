@@ -22,8 +22,8 @@ export default class Vault {
     this.storageAdapter = storageAdapter;
   }
 
-  public async open(key: string): Promise<void> {
-    const config = JSON.parse(await this.storageAdapter.readFileAsText('masterkey.cryptomator'));
+  public async open(masterkey: string, key: string): Promise<void> {
+    const config = JSON.parse(await this.storageAdapter.readFileAsText(masterkey));
 
     const derivedKey = await scrypt.scrypt(
       new TextEncoder().encode(key),

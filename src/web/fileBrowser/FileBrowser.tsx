@@ -4,6 +4,7 @@ import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } fro
 import { useEffect, useState } from "react";
 import { FileStat } from "webdav";
 import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
+import Vault from "../../lib/cryptomator/vault";
 import { VaultDialog } from "./VaultDialog";
 const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -90,6 +91,13 @@ export function FileBrowser(props: {client: WebDAV}){
 		return count === 3;
 	}
 
+	const decrypt = async (password: string) => {
+		const vault = new Vault(props.client);
+		await vault.open('/' + dir.join('/') + '/masterkey.cryptomator', password);
+		console.log('success')
+		//console.log(await vault.list('/'));
+	}
+
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
@@ -126,7 +134,7 @@ export function FileBrowser(props: {client: WebDAV}){
 					Unlock
 				</Fab>
 			</Zoom>
-			<VaultDialog open={open} close={() => setOpen(false)} decrypt={() => {}}/>
+			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt}/>
 		</Box>
 	)
 }
