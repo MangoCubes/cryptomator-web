@@ -24,10 +24,15 @@ export function FileBrowser(props: {client: WebDAV}){
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
+	const [vault, setVault] = useState<Vault | null>(null);
 	
 	useEffect(() => {
 		loadItems(dir);
 	}, []);
+
+	useEffect(() => {
+		console.log(vault)
+	}, [vault])
 
 	const loadItems = async (absDir: string[]) => {
 		const temp = [...items];
@@ -94,7 +99,7 @@ export function FileBrowser(props: {client: WebDAV}){
 	const decrypt = async (password: string) => {
 		const vault = new Vault(props.client, '/' + dir.join('/'));
 		await vault.open(password);
-		console.log(await vault.list(''));
+		return vault;
 	}
 
 	return (
@@ -133,7 +138,7 @@ export function FileBrowser(props: {client: WebDAV}){
 					Unlock
 				</Fab>
 			</Zoom>
-			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt}/>
+			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/>
 		</Box>
 	)
 }
