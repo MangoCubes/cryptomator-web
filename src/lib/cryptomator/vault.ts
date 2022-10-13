@@ -17,13 +17,19 @@ export default class Vault {
   encryptionKey?: CryptoKey;
   macKey?: CryptoKey;
   sivKey?: SIV;
+  dir: string;
 
-  constructor(storageAdapter: StorageAdapter) {
+  constructor(storageAdapter: StorageAdapter, dir: string) {
+	if(!dir.startsWith('/')){
+		throw new Error('Directory must be an absolute one pointing to the folder containing key and \'d\' folder.');
+	}
+	if(!dir.endsWith('/')) this.dir = dir + '/';
+	else this.dir = dir;
     this.storageAdapter = storageAdapter;
   }
 
-  public async open(masterkey: string, key: string): Promise<void> {
-    const config = JSON.parse(await this.storageAdapter.readFileAsText(masterkey));
+  public async open(key: string): Promise<void> {
+    const config = JSON.parse(await this.storageAdapter.readFileAsText(this.dir + 'masterkey.cryptomator'));
 
     const derivedKey = await scrypt.scrypt(
       new TextEncoder().encode(key),
@@ -72,7 +78,7 @@ export default class Vault {
 
   public async list(dirId: string): Promise<Node[]> {
     const path = await this.dirIdPath(dirId);
-    const nodes = await this.storageAdapter.list(path);
+    const nodes = await this.storageAdapter.list(this.dir + path);
 
     return nodes.map((n: any) => {
       return new Node(this, n.Key, dirId);
@@ -145,7 +151,7 @@ export default class Vault {
     );
   }
 
-  private async dirIdPath(dirId: string): Promise<string> {
+  async dirIdPath(dirId: string): Promise<string> {
     const ciphertext = this.sivKey!.seal([], new TextEncoder().encode(dirId));
     const hash = await crypto.subtle.digest('SHA-1', ciphertext);
     const encoded = base32Encode(hash, 'RFC4648', {padding: false});
