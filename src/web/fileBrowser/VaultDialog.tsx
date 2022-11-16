@@ -1,6 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
+import { Vault } from "cryptomator-ts";
 import { useEffect, useState } from "react";
-import Vault from "../../lib/cryptomator/vault";
 
 export function VaultDialog(props: {open: boolean, close: () => void, decrypt: (password: string) => Promise<Vault>, setVault: (vault: Vault) => void}){
 

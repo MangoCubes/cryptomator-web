@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
-import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
+import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { Login } from "./Login";
 import { Sidebar } from "./sidebar/Sidebar";

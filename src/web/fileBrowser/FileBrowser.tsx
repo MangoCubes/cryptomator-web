@@ -1,17 +1,16 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } from "@mui/x-data-grid";
+import { Item, Vault } from "cryptomator-ts";
 import { useEffect, useState } from "react";
-import { FileStat } from "webdav";
-import { WebDAV } from "../../lib/cryptomator/storage-adapters/WebDAV";
-import Vault from "../../lib/cryptomator/vault";
+import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
 const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
 		if(params.row.type === 'parent') return <ArrowBack/>;
 		else if(params.row.name === 'masterkey.cryptomator') return <Key/>;
 		else if(params.row.name.endsWith('.c9r')) return <Lock/>;
-		else if(params.row.type === 'directory') return <Folder/>;
+		else if(params.row.type === 'd') return <Folder/>;
 		else return <Article/>;
 	}},
 	{field: 'name', headerName: 'Name', flex: 3},
@@ -20,7 +19,7 @@ const columns = [
 export function FileBrowser(props: {client: WebDAV}){
 
 	const [dir, setDir] = useState<string[]>([]);
-	const [items, setItems] = useState<FileStat[]>([]);
+	const [items, setItems] = useState<Item[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
@@ -72,8 +71,8 @@ export function FileBrowser(props: {client: WebDAV}){
 			}
 			for(const item of items){
 				rows.push({
-					id: item.filename,
-					name: item.basename,
+					id: item.fullName,
+					name: item.name,
 					type: item.type
 				});
 			}
@@ -83,24 +82,24 @@ export function FileBrowser(props: {client: WebDAV}){
 
 	const onRowClick = (r: GridRowParams) => {
 		if(r.row.type === 'parent') loadSubDir(null);
-		else if(r.row.type === 'directory') loadSubDir(r.row.name);
+		else if(r.row.type === 'd') loadSubDir(r.row.name);
 	}
 
 	const showButton = () => {
 		let count = 0;
 		for (const i of items){
-			if(i.type === 'file' && i.basename === 'masterkey.cryptomator') count++;
-			else if(i.type === 'file' && i.basename === 'vault.cryptomator') count++;
-			else if(i.type === 'directory' && i.basename === 'd') count++;
+			if(i.type === 'f' && i.name === 'masterkey.cryptomator') count++;
+			else if(i.type === 'f' && i.name === 'vault.cryptomator') count++;
+			else if(i.type === 'd' && i.name === 'd') count++;
 		}
 		return count === 3;
 	}
 
-	const decrypt = async (password: string) => {
-		const vault = new Vault(props.client, '/' + dir.join('/'));
-		await vault.open(password);
-		return vault;
-	}
+	// const decrypt = async (password: string) => {
+	// 	const vault = new Vault(props.client, '/' + dir.join('/'));
+	// 	await vault.open(password);
+	// 	return vault;
+	// }
 
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
@@ -138,7 +137,7 @@ export function FileBrowser(props: {client: WebDAV}){
 					Unlock
 				</Fab>
 			</Zoom>
-			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/>
+			{/* <VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/> */}
 		</Box>
 	)
 }
