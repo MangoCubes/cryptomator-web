@@ -5,6 +5,7 @@ import { Item, Vault } from "cryptomator-ts";
 import { useEffect, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
+
 const columns = [
 	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
 		if(params.row.type === 'parent') return <ArrowBack/>;
@@ -16,22 +17,17 @@ const columns = [
 	{field: 'name', headerName: 'Name', flex: 3},
 ];
 
-export function FileBrowser(props: {client: WebDAV}){
+export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void}){
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
-	const [vault, setVault] = useState<Vault | null>(null);
 	
 	useEffect(() => {
 		loadItems(dir);
 	}, []);
-
-	useEffect(() => {
-		console.log(vault)
-	}, [vault])
 
 	const loadItems = async (absDir: string[]) => {
 		const temp = [...items];
@@ -136,7 +132,7 @@ export function FileBrowser(props: {client: WebDAV}){
 					Unlock
 				</Fab>
 			</Zoom>
-			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/>
+			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={props.setVault}/>
 		</Box>
 	)
 }
