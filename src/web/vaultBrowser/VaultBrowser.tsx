@@ -2,7 +2,7 @@ import { Refresh } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, Tooltip, IconButton } from "@mui/material";
 import { GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedItem, Vault } from "cryptomator-ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
 type VaultDir = {
@@ -21,12 +21,24 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 
+	useEffect(() => {
+		if(dir.length === 0) {
+			setDir([{
+				name: 'Root',
+				id: '' as DirID
+			}]);
+			return;
+		}
+		loadItems(dir[dir.length - 1].id);
+	}, [dir]);
+
 	const loadItems = async (dirId: DirID) => {
 		const temp = [...items];
 		try {
 			setQuerying(true);
 			setItems([]);
-			setItems(await props.vault.listItems(dirId));
+			const newItems = await props.vault.listItems(dirId);
+			setItems(newItems);
 		} catch(e) {
 			setItems(temp);
 		} finally {
@@ -38,7 +50,7 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
 				<Toolbar>
-					<Typography variant='h5'>{`${[props.vault.name]}: ${dir[dir.length - 1]}`}</Typography>
+					<Typography variant='h5'>{`${[props.vault.name]}: ${dir[dir.length - 1].name}`}</Typography>
 					<Box sx={{flex: 1}}/>
 					<Tooltip title='Refresh'>
 						<span>
