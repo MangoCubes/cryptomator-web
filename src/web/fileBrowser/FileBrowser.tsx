@@ -95,11 +95,10 @@ export function FileBrowser(props: {client: WebDAV}){
 		return count === 3;
 	}
 
-	// const decrypt = async (password: string) => {
-	// 	const vault = new Vault(props.client, '/' + dir.join('/'));
-	// 	await vault.open(password);
-	// 	return vault;
-	// }
+	const decrypt = async (password: string) => {
+		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1]);
+		return vault;
+	}
 
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
@@ -137,7 +136,7 @@ export function FileBrowser(props: {client: WebDAV}){
 					Unlock
 				</Fab>
 			</Zoom>
-			{/* <VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/> */}
+			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={setVault}/>
 		</Box>
 	)
 }
