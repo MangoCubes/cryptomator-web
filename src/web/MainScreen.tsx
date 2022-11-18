@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { Item, Vault } from "cryptomator-ts";
+import { EncryptedItem, Item, Vault } from "cryptomator-ts";
 import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
@@ -15,22 +15,34 @@ export enum Progress {
 	Done
 }
 
-type Download = {
+export type DownloadItem = {
 	progress: Progress;
+} & ({
 	item: Item;
-}
+} | {
+	item: EncryptedItem;
+	vault: Vault;
+});
 
 export function MainScreen(){
 
 	const [client, setClient] = useState<null | WebDAV>(null);
 	const [vault, setVault] = useState<Vault | null>(null);
-	const [downloads, setDownloads] = useState<Download[]>([]);
+	const [downloads, setDownloads] = useState<DownloadItem[]>([]);
 	const [open, setOpen] = useState(false);
 
 	const startDownload = (item: Item) => {
 		setDownloads([...downloads, {
 			item: item,
 			progress: Progress.Queued
+		}]);
+	}
+
+	const startEncryptedDownload = (item: EncryptedItem, vault: Vault) => {
+		setDownloads([...downloads, {
+			item: item,
+			progress: Progress.Queued,
+			vault: vault
 		}]);
 	}
 
@@ -50,9 +62,9 @@ export function MainScreen(){
 				{
 					vault === null
 					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
-					: <VaultBrowser client={client} vault={vault} download={startDownload}/>
+					: <VaultBrowser client={client} vault={vault} download={startEncryptedDownload}/>
 				}
-				<DownloadProgress open={open} onClose={() => setOpen(false)}/>
+				<DownloadProgress open={open} onClose={() => setOpen(false)} downloads={downloads} update={updateDownload}/>
 			</Box>
 		)
 	} else {
