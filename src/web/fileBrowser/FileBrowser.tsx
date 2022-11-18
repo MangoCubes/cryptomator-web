@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
 
-export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void}){
+export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item) => void}){
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
@@ -27,7 +27,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			field: 'actions',
 			type: 'actions',
 			getActions: (params: GridRowParams) => [
-				<GridActionsCellItem icon={<Download/>} label='Download' />,
+				<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />,
 				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
 			]
 		}
@@ -77,7 +77,8 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 				rows.push({
 					id: item.fullName,
 					name: item.name,
-					type: item.type
+					type: item.type,
+					obj: item
 				});
 			}
 			return rows;

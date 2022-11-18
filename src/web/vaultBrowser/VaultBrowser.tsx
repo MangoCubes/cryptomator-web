@@ -5,7 +5,7 @@ import { DirID, EncryptedDir, EncryptedItem, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
-export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
+export function VaultBrowser(props: {vault: Vault, client: WebDAV, download: (item: EncryptedItem) => void}){
 
 	const [dir, setDir] = useState<EncryptedDir[]>([]);
 	const [items, setItems] = useState<EncryptedItem[]>([]);
@@ -23,7 +23,7 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 			field: 'actions',
 			type: 'actions',
 			getActions: (params: GridRowParams) => [
-				<GridActionsCellItem icon={<Download/>} label='Download' />,
+				<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />,
 				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
 			]
 		}
