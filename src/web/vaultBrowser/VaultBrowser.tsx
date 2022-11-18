@@ -2,7 +2,7 @@ import { ArrowBack, Article, Folder, Refresh } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, Tooltip, IconButton } from "@mui/material";
 import { DataGrid, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, Vault } from "cryptomator-ts";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
 const columns = [
@@ -20,6 +20,31 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 	const [items, setItems] = useState<EncryptedItem[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
+
+	const rows = useMemo(() => {
+		if (querying) return [];
+		else {
+			const rows = [];
+			if(dir.length){
+				rows.push(
+					{
+						id: 'parent',
+						name: 'Up one level',
+						type: 'parent'
+					}
+				);
+			}
+			for(const item of items){
+				rows.push({
+					id: item.fullName,
+					name: item.decryptedName,
+					type: item.type,
+					obj: item
+				});
+			}
+			return rows;
+		}
+	}, [querying]);
 
 	useEffect(() => {
 		loadItems();
@@ -53,31 +78,6 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 		else setDir([...dir, subDir]);
 	}
 
-	const getRows = () => {
-		if (querying) return [];
-		else {
-			const rows = [];
-			if(dir.length){
-				rows.push(
-					{
-						id: 'parent',
-						name: 'Up one level',
-						type: 'parent'
-					}
-				);
-			}
-			for(const item of items){
-				rows.push({
-					id: item.fullName,
-					name: item.decryptedName,
-					type: item.type,
-					obj: item
-				});
-			}
-			return rows;
-		}
-	}
-
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
@@ -99,7 +99,7 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 					disableSelectionOnClick
 					isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
 					columns={columns}
-					rows={getRows()}
+					rows={rows}
 					loading={querying}
 					checkboxSelection
 					selectionModel={sel}
