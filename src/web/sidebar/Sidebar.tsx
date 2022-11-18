@@ -2,7 +2,7 @@ import { Download, Lock, Logout } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
 import { Vault } from "cryptomator-ts";
 
-export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: number}){
+export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: number, openDownloads: () => void}){
 
 	const drawer = 240;
 
@@ -17,7 +17,7 @@ export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: (
 		<Box sx={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
 			<Box sx={{flex: 1}}/>
 			<List sx={{ width: drawer, overflow: 'auto'}}>
-				<ListItemButton onClick={() => {}}>
+				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
 						<Badge badgeContent={props.downloads} color='primary'>
 							<Download/>
