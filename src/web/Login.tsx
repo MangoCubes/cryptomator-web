@@ -2,7 +2,7 @@ import { Help } from "@mui/icons-material";
 import { Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FormEvent, useState } from "react";
-import { WebDAV } from "../lib/cryptomator/storage-adapters/WebDAV";
+import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 
 enum LoginErr {
@@ -25,7 +25,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 		setError(null);
 		const client = new WebDAV(url, username, password);
 		try {
-			await client.list('/'); // Test query
+			await client.listItems('/'); // Test query
 			sessionStorage.setItem('url', url);
 			sessionStorage.setItem('username', username);
 			props.setClient(client);
