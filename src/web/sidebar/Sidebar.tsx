@@ -1,8 +1,8 @@
-import { Lock, Logout } from "@mui/icons-material";
-import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon } from "@mui/material";
+import { Download, Lock, Logout } from "@mui/icons-material";
+import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
 import { Vault } from "cryptomator-ts";
 
-export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void}){
+export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: number}){
 
 	const drawer = 240;
 
@@ -17,6 +17,14 @@ export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: (
 		<Box sx={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
 			<Box sx={{flex: 1}}/>
 			<List sx={{ width: drawer, overflow: 'auto'}}>
+				<ListItemButton onClick={() => {}}>
+					<ListItemIcon>
+						<Badge badgeContent={props.downloads} color='primary'>
+							<Download/>
+						</Badge>
+					</ListItemIcon>
+					<ListItemText primary={'Downloads'} secondary={props.downloads === 0 ? '' : `${props.downloads} in progress`}/>
+				</ListItemButton>
 				<ListItemButton onClick={props.vault ? props.lock : props.logout}>
 					<ListItemIcon>
 						{props.vault ? <Lock/> : <Logout/>}

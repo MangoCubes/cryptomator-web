@@ -15,7 +15,7 @@ export function MainScreen(){
 	if(client){
 		return (
 			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)}/>
+				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)} downloads={0}/>
 				{
 					vault === null
 					? <FileBrowser client={client} setVault={setVault}/>
