@@ -27,7 +27,7 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV, download: (it
 				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
 			]
 		}
-	], []);
+	], [props.download]);
 
 	const rows = useMemo(() => {
 		if (querying) return [];

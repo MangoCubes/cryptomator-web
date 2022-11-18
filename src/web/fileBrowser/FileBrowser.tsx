@@ -31,7 +31,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
 			]
 		}
-	], []);
+	], [props.download]);
 	
 	useEffect(() => {
 		loadItems(dir);

@@ -1,4 +1,4 @@
-import { Box, Drawer } from "@mui/material";
+import { Box } from "@mui/material";
 import { Item, Vault } from "cryptomator-ts";
 import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
