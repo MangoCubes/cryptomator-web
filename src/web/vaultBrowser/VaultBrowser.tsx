@@ -1,18 +1,9 @@
-import { ArrowBack, Article, Folder, Refresh } from "@mui/icons-material";
+import { ArrowBack, Article, Delete, Download, Folder, Refresh } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, Tooltip, IconButton } from "@mui/material";
-import { DataGrid, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
-
-const columns = [
-	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
-		if(params.row.type === 'parent') return <ArrowBack/>;
-		else if(params.row.type === 'd') return <Folder/>;
-		else return <Article/>;
-	}},
-	{field: 'name', headerName: 'Name', flex: 3},
-];
 
 export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 
@@ -20,6 +11,23 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV}){
 	const [items, setItems] = useState<EncryptedItem[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
+
+	const columns = useMemo(() => [
+		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
+			if(params.row.type === 'parent') return <ArrowBack/>;
+			else if(params.row.type === 'd') return <Folder/>;
+			else return <Article/>;
+		}},
+		{field: 'name', headerName: 'Name', flex: 3},
+		{
+			field: 'actions',
+			type: 'actions',
+			getActions: (params: GridRowParams) => [
+				<GridActionsCellItem icon={<Download/>} label='Download' />,
+				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
+			]
+		}
+	], []);
 
 	const rows = useMemo(() => {
 		if (querying) return [];

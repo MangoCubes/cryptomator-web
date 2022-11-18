@@ -1,21 +1,10 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key } from "@mui/icons-material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
-import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, Vault } from "cryptomator-ts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
-
-const columns = [
-	{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
-		if(params.row.type === 'parent') return <ArrowBack/>;
-		else if(params.row.name === 'masterkey.cryptomator') return <Key/>;
-		else if(params.row.name.endsWith('.c9r')) return <Lock/>;
-		else if(params.row.type === 'd') return <Folder/>;
-		else return <Article/>;
-	}},
-	{field: 'name', headerName: 'Name', flex: 3},
-];
 
 export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void}){
 
@@ -24,6 +13,25 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	const [querying, setQuerying] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
+
+	const columns = useMemo(() => [
+		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
+			if(params.row.type === 'parent') return <ArrowBack/>;
+			else if(params.row.name === 'masterkey.cryptomator') return <Key/>;
+			else if(params.row.name.endsWith('.c9r')) return <Lock/>;
+			else if(params.row.type === 'd') return <Folder/>;
+			else return <Article/>;
+		}},
+		{field: 'name', headerName: 'Name', flex: 3},
+		{
+			field: 'actions',
+			type: 'actions',
+			getActions: (params: GridRowParams) => [
+				<GridActionsCellItem icon={<Download/>} label='Download' />,
+				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
+			]
+		}
+	], []);
 	
 	useEffect(() => {
 		loadItems(dir);
