@@ -3,7 +3,7 @@ import { EncryptedItem, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
-import { ItemDownloader } from "./ItemDownloader";
+import { ItemDownloader, Progress } from "./ItemDownloader";
 import { Login } from "./Login";
 import { DownloadProgress } from "./sidebar/DownloadProgress";
 import { Sidebar } from "./sidebar/Sidebar";
@@ -29,6 +29,15 @@ export function MainScreen(){
 		setDownloads(copy);
 	}
 
+	const clearDownloads = () => {
+		const newMap: {[path: ItemPath]: ItemDownloader} = {};
+		for(const k in downloads){
+			const item = downloads[k as ItemPath];
+			if(item.progress.current !== Progress.Done) newMap[item.item.fullName] = item;
+		}
+		setDownloads(newMap);
+	}
+
 	if(client){
 		return (
 			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
@@ -38,7 +47,7 @@ export function MainScreen(){
 					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
 					: <VaultBrowser client={client} vault={vault} download={startDownload}/>
 				}
-				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads}/>
+				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads} clear={clearDownloads}/>
 			</Box>
 		)
 	} else {

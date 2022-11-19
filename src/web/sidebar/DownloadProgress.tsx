@@ -1,10 +1,11 @@
-import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List } from "@mui/material";
+import { ClearAll } from "@mui/icons-material";
+import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, IconButton, Tooltip } from "@mui/material";
 import { ItemPath } from "cryptomator-ts";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { ItemDownloader, Progress } from "../ItemDownloader";
 import { DownloadListItem } from "./DownloadListItem";
 
-export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose: () => void, downloads: {[path: ItemPath]: ItemDownloader}}){
+export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose: () => void, downloads: {[path: ItemPath]: ItemDownloader}, clear: () => void}){
 
 	const genList = () => {
 		const listItems = [];
@@ -32,7 +33,15 @@ export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose:
 	return (
 		<Drawer anchor='right' open={props.open} onClose={props.onClose}>
 			<Toolbar>
-				<ListItem>
+				<ListItem secondaryAction={
+					<Tooltip title='Clear completed'>
+						<span>
+							<IconButton edge='end' onClick={props.clear}>
+								<ClearAll/>
+							</IconButton>
+						</span>
+					</Tooltip>
+				}>
 					<ListItemText primary={'All downloads'} secondary={getMessage()}/>
 				</ListItem>
 			</Toolbar>
