@@ -11,15 +11,14 @@ import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
 export enum Progress {
 	Queued,
 	Running,
-	Decrypting,
 	Done
 }
 
 export type ProgressData = {
 	progress: Progress.Queued | Progress.Running;
 } | {
-	progress: Progress.Decrypting | Progress.Done;
-	data: Uint8Array;
+	progress: Progress.Done;
+	data: Uint8Array | string;
 }
 
 export type DownloadItem = ProgressData & ({
@@ -69,7 +68,7 @@ export function MainScreen(){
 					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
 					: <VaultBrowser client={client} vault={vault} download={startEncryptedDownload}/>
 				}
-				<DownloadProgress open={open} onClose={() => setOpen(false)} downloads={downloads} update={updateDownload}/>
+				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads} update={updateDownload}/>
 			</Box>
 		)
 	} else {

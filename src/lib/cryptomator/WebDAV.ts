@@ -33,6 +33,7 @@ export class WebDAV implements DataProvider{
 		if(Array.isArray(res)) return res;
 		else return res.data;
 	}
+	
 	async listItems(path: string): Promise<Item[]> {
 		const items = await this.listStat(path);
 		const itemList: Item[] = [];
