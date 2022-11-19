@@ -92,7 +92,7 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV, download: (it
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
 				<Toolbar>
-					<Typography variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</Typography>
+					<Typography variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].decryptedName}`}</Typography>
 					<Box sx={{flex: 1}}/>
 					<Tooltip title='Refresh'>
 						<span>
