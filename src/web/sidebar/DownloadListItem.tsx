@@ -5,8 +5,7 @@ import { ItemDownloader, Progress } from "../ItemDownloader";
 export function DownloadListItem(props: {item: ItemDownloader}){
 
 	const displayProgress = () => {
-		if(props.item.progress.current === Progress.Queued) return 'Download queued';
-		else if(props.item.progress.current === Progress.Running) return 'Downloading...';
+		if(props.item.progress.current === Progress.Running) return 'Downloading...';
 		else {
 			console.log(props.item.progress.data)
 			return 'Download complete';
