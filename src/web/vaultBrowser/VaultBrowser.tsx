@@ -22,10 +22,12 @@ export function VaultBrowser(props: {vault: Vault, client: WebDAV, download: (it
 		{
 			field: 'actions',
 			type: 'actions',
-			getActions: (params: GridRowParams) => [
-				<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj, props.vault)} label='Download' />,
-				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
-			]
+			getActions: (params: GridRowParams) => {
+				const def = [];
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj, props.vault)} label='Download' />);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />);
+				return def;
+			}
 		}
 	], [props.download]);
 

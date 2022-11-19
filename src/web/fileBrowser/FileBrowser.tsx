@@ -26,10 +26,12 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 		{
 			field: 'actions',
 			type: 'actions',
-			getActions: (params: GridRowParams) => [
-				<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />,
-				<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />,
-			]
+			getActions: (params: GridRowParams) => {
+				const def = [];
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />);
+				return def;
+			}
 		}
 	], [props.download]);
 	
