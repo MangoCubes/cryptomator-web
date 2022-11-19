@@ -1,10 +1,34 @@
 import { Download, Lock, Logout } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { Vault } from "cryptomator-ts";
+import { ItemPath, Vault } from "cryptomator-ts";
+import { ItemDownloader, Progress } from "../ItemDownloader";
 
-export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: number, openDownloads: () => void}){
+export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: {[path: ItemPath]: ItemDownloader}, openDownloads: () => void}){
 
 	const drawer = 240;
+
+	const getMessage = () => {
+		let done = 0;
+		let inProgress = 0;
+		for(const k in props.downloads){
+			const item = props.downloads[k as ItemPath];
+			if(item.progress.current === Progress.Done) done++;
+			else if(item.progress.current === Progress.Running) inProgress++;
+		}
+		const res = [];
+		if(inProgress !== 0) res.push(`${inProgress} in progress`);
+		if(done !== 0) res.push(`${done} completed`);
+		return res.join(', ');
+	}
+
+	const getCount = () => {
+		let inProgress = 0;
+		for(const k in props.downloads){
+			const item = props.downloads[k as ItemPath];
+			if(item.progress.current === Progress.Running) inProgress++;
+		}
+		return inProgress;
+	}
 
 	return (
 	<Drawer variant='permanent' sx={{ width: drawer }} open={true} anchor='left'>
@@ -19,11 +43,11 @@ export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: (
 			<List sx={{ width: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
-						<Badge badgeContent={props.downloads} color='primary'>
+						<Badge badgeContent={getCount()} color='primary'>
 							<Download/>
 						</Badge>
 					</ListItemIcon>
-					<ListItemText primary={'Downloads'} secondary={props.downloads === 0 ? '' : `${props.downloads} in progress`}/>
+					<ListItemText primary={'Downloads'} secondary={getMessage()}/>
 				</ListItemButton>
 				<ListItemButton onClick={props.vault ? props.lock : props.logout}>
 					<ListItemIcon>

@@ -32,7 +32,7 @@ export function MainScreen(){
 	if(client){
 		return (
 			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)} downloads={Object.keys(downloads).length} openDownloads={() => setOpen(true)}/>
+				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)} downloads={downloads} openDownloads={() => setOpen(true)}/>
 				{
 					vault === null
 					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
