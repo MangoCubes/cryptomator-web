@@ -2,12 +2,12 @@ import { Item } from "cryptomator-ts";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 
 export enum Progress{
-	Downloading,
+	Running,
 	Done
 }
 
 type ProgressData = {
-	current: Progress.Downloading;
+	current: Progress.Running;
 } | {
 	current: Progress.Done;
 	data: Uint8Array | string;
@@ -16,8 +16,8 @@ type ProgressData = {
 export class ItemDownloader{
 	progress: ProgressData
 	constructor(public item: Item, public client: WebDAV, public updater: (downloader: ItemDownloader) => void, progress?: ProgressData){
-		this.progress = progress ?? { current: Progress.Downloading };
-		this.start();
+		this.progress = progress ?? { current: Progress.Running };
+		if (this.progress.current === Progress.Running) this.start();
 	}
 
 	async start() {
