@@ -15,9 +15,14 @@ export enum Progress {
 	Done
 }
 
-export type DownloadItem = {
-	progress: Progress;
-} & ({
+export type ProgressData = {
+	progress: Progress.Queued | Progress.Running;
+} | {
+	progress: Progress.Decrypting | Progress.Done;
+	data: Uint8Array;
+}
+
+export type DownloadItem = ProgressData & ({
 	item: Item;
 } | {
 	item: EncryptedItem;
@@ -46,11 +51,11 @@ export function MainScreen(){
 		}]);
 	}
 
-	const updateDownload = (index: number, to: Progress) => {
+	const updateDownload = (index: number, to: ProgressData) => {
 		const original = [...downloads];
 		original[index] = {
 			...original[index],
-			progress: to
+			...to
 		};
 		setDownloads(original);
 	}
