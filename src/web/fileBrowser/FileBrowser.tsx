@@ -33,7 +33,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 				return def;
 			}
 		}
-	], [props.download]);
+	], [props.download, dir]);
 	
 	useEffect(() => {
 		loadItems(dir);
