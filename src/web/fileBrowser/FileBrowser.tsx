@@ -65,13 +65,22 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 		else await props.client.removeDir(item.fullName);
 	}
 
+	const getSelectedItems = () => {
+		const targets = [];
+		for(const item of items) if(sel.includes(item.fullName)) targets.push(item);
+		return targets;
+	}
+
+	const downloadSelected = () => {
+		const targets = getSelectedItems();
+		for(const t of targets) props.download(t);
+	}
+
 	const onDelete = async (item?: Item) => {
 		setQuerying(true);
 		if(item) await delItems(item);
 		else {
-			const targets = [];
-			for(const item of items) if(sel.includes(item.fullName)) targets.push(item);
-			console.log(targets);
+			const targets = getSelectedItems();
 			const tasks: Promise<void>[] = [];
 			for(const t of targets) tasks.push(delItems(t));
 			await Promise.all(tasks);
@@ -131,9 +140,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 	
 	const toolbar = () => {
-		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={function (): void {
-			throw new Error("Function not implemented.");
-		} } disabled={querying}/>;
+		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying}/>;
 		else return (
 			<Toolbar>
 				<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
