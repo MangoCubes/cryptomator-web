@@ -1,5 +1,5 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert } from "@mui/icons-material";
+import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo } from "react";
@@ -130,9 +130,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 	
 	const toolbar = () => {
-		if(sel.length) return <SelectionToolbar selected={sel.length} del={function (): void {
-			throw new Error("Function not implemented.");
-		} } download={function (): void {
+		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={function (): void {
 			throw new Error("Function not implemented.");
 		} }/>;
 		else return (
@@ -182,6 +180,9 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 }
 
 function SelectionToolbar(props: {selected: number, del: () => void, download: () => void}){
+
+	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
+
 	return (
 		<Toolbar>
 			<Typography variant='h5'>{`${props.selected} items selected`}</Typography>
@@ -193,6 +194,17 @@ function SelectionToolbar(props: {selected: number, del: () => void, download: (
 					</IconButton>
 				</span>
 			</Tooltip>
+			<IconButton onClick={(e) => setAnchor(e.currentTarget)}>
+				<MoreVert/>
+			</IconButton>
+			<Menu anchorEl={anchor} open={anchor !== null} onClose={() => setAnchor(null)}>
+				<MenuItem onClick={props.del}>
+					<ListItemIcon>
+						<Delete/>
+					</ListItemIcon>
+					<ListItemText>Delete selected</ListItemText>
+				</MenuItem>
+			</Menu>
 		</Toolbar>
 	)
 }
