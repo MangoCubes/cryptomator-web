@@ -28,8 +28,10 @@ export class WebDAV implements DataProvider{
 		}
 	}
 
-	async listStat(path: string): Promise<FileStat[]>{
-		const res = await this.client.getDirectoryContents(path);
+	async listStat(path: string, deep?: boolean): Promise<FileStat[]>{
+		const res = await this.client.getDirectoryContents(path, {
+			deep: deep
+		});
 		if(Array.isArray(res)) return res;
 		else return res.data;
 	}
@@ -56,6 +58,7 @@ export class WebDAV implements DataProvider{
 			return res;
 		}
 	}
+
 	writeFile(path: string, content: string | Uint8Array): Promise<void> {
 		throw new Error("Not implemented");
 	}
@@ -65,7 +68,7 @@ export class WebDAV implements DataProvider{
 	async removeFile(path: string): Promise<void> {
 		await this.client.deleteFile(path);
 	}
-	removeDir(path: string): Promise<void> {
-		throw new Error("Not implemented");
+	async removeDir(path: string): Promise<void> {
+		await this.client.deleteFile(path);
 	}
 }

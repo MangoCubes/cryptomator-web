@@ -71,6 +71,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 		else {
 			const targets = [];
 			for(const item of items) if(sel.includes(item.fullName)) targets.push(item);
+			console.log(targets);
 			const tasks: Promise<void>[] = [];
 			for(const t of targets) tasks.push(delItems(t));
 			await Promise.all(tasks);
@@ -132,7 +133,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	const toolbar = () => {
 		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={function (): void {
 			throw new Error("Function not implemented.");
-		} }/>;
+		} } disabled={querying}/>;
 		else return (
 			<Toolbar>
 				<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
@@ -179,7 +180,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	);
 }
 
-function SelectionToolbar(props: {selected: number, del: () => void, download: () => void}){
+function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, disabled: boolean}){
 
 	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -187,18 +188,18 @@ function SelectionToolbar(props: {selected: number, del: () => void, download: (
 		<Toolbar>
 			<Typography variant='h5'>{`${props.selected} items selected`}</Typography>
 			<Box sx={{flex: 1}}/>
-			<Tooltip title='Refresh'>
+			<Tooltip title='Download selected'>
 				<span>
-					<IconButton edge='end' onClick={props.download}>
+					<IconButton onClick={props.download} disabled={props.disabled}>
 						<Download/>
 					</IconButton>
 				</span>
 			</Tooltip>
-			<IconButton onClick={(e) => setAnchor(e.currentTarget)}>
+			<IconButton onClick={(e) => setAnchor(e.currentTarget)} disabled={props.disabled}>
 				<MoreVert/>
 			</IconButton>
 			<Menu anchorEl={anchor} open={anchor !== null} onClose={() => setAnchor(null)}>
-				<MenuItem onClick={props.del}>
+				<MenuItem onClick={() => props.del()}>
 					<ListItemIcon>
 						<Delete/>
 					</ListItemIcon>
