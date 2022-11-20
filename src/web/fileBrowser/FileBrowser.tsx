@@ -29,7 +29,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			getActions: (params: GridRowParams) => {
 				const def = [];
 				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu />);
 				return def;
 			}
 		}
@@ -56,6 +56,23 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	const loadSubDir = async (subDir: string | null) => {
 		if (subDir === null) await loadItems(dir.slice(0, -1));
 		else await loadItems([...dir, subDir]);
+	}
+	
+	const delItems = async (item: Item) => {
+		if(item.type === 'f') await props.client.removeFile(item.fullName);
+		else await props.client.removeDir(item.fullName);
+	}
+
+	const onDelete = async (item?: Item) => {
+		if(item) await delItems(item);
+		else {
+			const targets = [];
+			for(const item of items) if(sel.includes(item.fullName)) targets.push(item);
+			const tasks: Promise<void>[] = [];
+			for(const t of targets) tasks.push(delItems(t));
+			await Promise.all(tasks);
+		}
+		await reload();
 	}
 
 	const reload = async () => {
@@ -88,6 +105,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	const onRowClick = (r: GridRowParams) => {
+		if(sel.length) return;
 		if(r.row.type === 'parent') loadSubDir(null);
 		else if(r.row.type === 'd') loadSubDir(r.row.name);
 	}
@@ -106,21 +124,32 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1]);
 		return vault;
 	}
+	
+	const toolbar = () => {
+		if(sel.length) return <SelectionToolbar selected={sel.length} del={function (): void {
+			throw new Error("Function not implemented.");
+		} } download={function (): void {
+			throw new Error("Function not implemented.");
+		} }/>;
+		else return (
+			<Toolbar>
+				<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
+				<Box sx={{flex: 1}}/>
+				<Tooltip title='Refresh'>
+					<span>
+						<IconButton edge='end' onClick={reload} disabled={querying}>
+							<Refresh/>
+						</IconButton>
+					</span>
+				</Tooltip>
+			</Toolbar>
+		);
+	}
 
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 			<AppBar position='static'>
-				<Toolbar>
-					<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
-					<Box sx={{flex: 1}}/>
-					<Tooltip title='Refresh'>
-						<span>
-							<IconButton edge='end' onClick={reload} disabled={querying}>
-								<Refresh/>
-							</IconButton>
-						</span>
-					</Tooltip>
-				</Toolbar>
+				{toolbar()}
 			</AppBar>
 			<Box m={1} sx={{flex: 1}}>
 				<DataGrid
@@ -145,5 +174,21 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			</Zoom>
 			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={props.setVault}/>
 		</Box>
+	);
+}
+
+function SelectionToolbar(props: {selected: number, del: () => void, download: () => void}){
+	return (
+		<Toolbar>
+			<Typography variant='h5'>{`${props.selected} items selected`}</Typography>
+			<Box sx={{flex: 1}}/>
+			<Tooltip title='Refresh'>
+				<span>
+					<IconButton edge='end' onClick={props.download}>
+						<Download/>
+					</IconButton>
+				</span>
+			</Tooltip>
+		</Toolbar>
 	)
 }
