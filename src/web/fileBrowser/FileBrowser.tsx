@@ -10,9 +10,10 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
-	const [querying, setQuerying] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
+	const [querying, setQuerying] = useState(false);
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -28,12 +29,12 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
 				const def = [];
-				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' />);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu />);
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' disabled={querying}/>);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying}/>);
 				return def;
 			}
 		}
-	], [props.download, dir]);
+	], [props.download, dir, querying]);
 	
 	useEffect(() => {
 		loadItems(dir);
@@ -42,18 +43,19 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	const loadItems = async (absDir: string[]) => {
 		const temp = [...items];
 		try {
-			setQuerying(true);
+			setLoading(true);
 			setItems([]);
 			setItems(await props.client.listItems('/' + absDir.join('/')));
 			setDir(absDir);
 		} catch(e) {
 			setItems(temp);
 		} finally {
-			setQuerying(false);
+			setLoading(false);
 		}
 	}
 
 	const loadSubDir = async (subDir: string | null) => {
+		if (querying) return;
 		if (subDir === null) await loadItems(dir.slice(0, -1));
 		else await loadItems([...dir, subDir]);
 	}
@@ -64,6 +66,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	const onDelete = async (item?: Item) => {
+		setQuerying(true);
 		if(item) await delItems(item);
 		else {
 			const targets = [];
@@ -72,6 +75,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			for(const t of targets) tasks.push(delItems(t));
 			await Promise.all(tasks);
 		}
+		setQuerying(false);
 		await reload();
 	}
 
@@ -80,7 +84,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	const getRows = () => {
-		if (querying) return [];
+		if (loading) return [];
 		else {
 			const rows = [];
 			if(dir.length){
@@ -137,7 +141,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 				<Box sx={{flex: 1}}/>
 				<Tooltip title='Refresh'>
 					<span>
-						<IconButton edge='end' onClick={reload} disabled={querying}>
+						<IconButton edge='end' onClick={reload} disabled={loading || querying}>
 							<Refresh/>
 						</IconButton>
 					</span>
@@ -158,11 +162,11 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 					isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
 					columns={columns}
 					rows={getRows()}
-					loading={querying}
+					loading={loading}
 					checkboxSelection
 					selectionModel={sel}
 					onSelectionModelChange={items => {
-						if(!querying) setSel(items);
+						if(!loading) setSel(items);
 					}}
 				/>
 			</Box>
