@@ -2,8 +2,16 @@ import { Download, Logout } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
 import { ItemPath } from "cryptomator-ts";
 import { ItemDownloader, Progress } from "../ItemDownloader";
+import { DirCache } from "./FileBrowser";
 
-export function FileSidebar(props: {logout: () => void, downloads: {[path: ItemPath]: ItemDownloader}, openDownloads: () => void}){
+export function FileSidebar(props: {
+	logout: () => void,
+	downloads: {[path: ItemPath]: ItemDownloader},
+	openDownloads: () => void,
+	tree: DirCache,
+	dir: string[],
+	setDir: (dir: string[]) => void
+}){
 
 	const drawer = 240;
 

@@ -2,16 +2,16 @@ import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Del
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { ItemDownloader } from "../ItemDownloader";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
-type DirCache = {
-	child: {[dir: string]: DirCache};
+export type DirCache = {[key: string]: {
+	child: Item[];
 	explored: boolean;
-}
+}}
 
 export function FileBrowser(props: {
 	client: WebDAV,
@@ -28,8 +28,7 @@ export function FileBrowser(props: {
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
 	const [querying, setQuerying] = useState(false);
-
-	const cache = useRef<DirCache>({child: {}, explored: false});
+	const [cache, setCache] = useState<DirCache>({'/': {child: [], explored: false}});
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -61,18 +60,16 @@ export function FileBrowser(props: {
 		try {
 			setLoading(true);
 			setItems([]);
-			const res = await props.client.listItems('/' + absDir.join('/'));
+			const dir = '/' + absDir.join('/');
+			const res = await props.client.listItems(dir);
 			setItems(res);
 			setDir(absDir);
-			let current = cache.current;
-			for(const p of absDir) current = current.child[p];
-			for(const r of res){
-				current.child[r.name] = {
-					child: {},
-					explored: false
-				};
-				current.explored = true;
+			const copy = {...cache};
+			copy[dir] = {
+				child: res,
+				explored: true
 			}
+			setCache(copy);
 		} catch(e) {
 			setItems(temp);
 		} finally {
@@ -183,7 +180,7 @@ export function FileBrowser(props: {
 
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads}/>
+			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads} tree={cache} dir={dir} setDir={setDir}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 				<AppBar position='static'>
 					{toolbar()}
