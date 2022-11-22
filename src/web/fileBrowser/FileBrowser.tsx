@@ -10,8 +10,15 @@ import { VaultDialog } from "./VaultDialog";
 
 export type DirCache = {[key: string]: {
 	child: Item[];
-	explored: boolean;
-}}
+	explored: ExpStatus;
+}};
+
+export enum ExpStatus {
+	Ready,
+	Querying,
+	NotStarted,
+	Error
+}
 
 export function FileBrowser(props: {
 	client: WebDAV,
@@ -23,12 +30,11 @@ export function FileBrowser(props: {
 }){
 
 	const [dir, setDir] = useState<string[]>([]);
-	const [items, setItems] = useState<Item[]>([]);
+	const [items, setItems] = useState<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
 	const [loading, setLoading] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
 	const [querying, setQuerying] = useState(false);
-	const [cache, setCache] = useState<DirCache>({'/': {child: [], explored: false}});
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -55,23 +61,36 @@ export function FileBrowser(props: {
 		loadItems(dir);
 	}, []);
 
+	const getDirItems = (absDir?: string[]) => {
+		const concated = '/' + (absDir ?? dir).join('/');
+		return items[concated]?.child ?? [];
+	}
+
 	const loadItems = async (absDir: string[]) => {
-		const temp = [...items];
+		const dir = '/' + absDir.join('/');
+		const temp = getDirItems(absDir);
+		const stat = {...items};
+		stat[dir] = {
+			explored: ExpStatus.Querying,
+			child: []
+		};
+		setItems(stat);
 		try {
 			setLoading(true);
-			setItems([]);
-			const dir = '/' + absDir.join('/');
 			const res = await props.client.listItems(dir);
-			setItems(res);
 			setDir(absDir);
-			const copy = {...cache};
+			const copy = {...items};
 			copy[dir] = {
 				child: res,
-				explored: true
+				explored: ExpStatus.Ready
 			}
-			setCache(copy);
+			setItems(copy);
 		} catch(e) {
-			setItems(temp);
+			const copy = {...items};
+			copy[dir] = {
+				child: temp,
+				explored: ExpStatus.Error
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -90,7 +109,7 @@ export function FileBrowser(props: {
 
 	const getSelectedItems = () => {
 		const targets = [];
-		for(const item of items) if(sel.includes(item.fullName)) targets.push(item);
+		for(const item of getDirItems()) if(sel.includes(item.fullName)) targets.push(item);
 		return targets;
 	}
 
@@ -128,7 +147,7 @@ export function FileBrowser(props: {
 					}
 				);
 			}
-			for(const item of items){
+			for(const item of getDirItems()){
 				rows.push({
 					id: item.fullName,
 					name: item.name,
@@ -148,7 +167,7 @@ export function FileBrowser(props: {
 
 	const showButton = () => {
 		let count = 0;
-		for (const i of items){
+		for (const i of getDirItems()){
 			if(i.type === 'f' && i.name === 'masterkey.cryptomator') count++;
 			else if(i.type === 'f' && i.name === 'vault.cryptomator') count++;
 			else if(i.type === 'd' && i.name === 'd') count++;
@@ -180,7 +199,7 @@ export function FileBrowser(props: {
 
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads} tree={cache} dir={dir} setDir={setDir}/>
+			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads} tree={items} dir={dir} setDir={setDir}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 				<AppBar position='static'>
 					{toolbar()}
