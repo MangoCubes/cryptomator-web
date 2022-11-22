@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
 
-export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item) => void}){
+export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item[]) => void}){
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
@@ -72,8 +72,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	const downloadSelected = () => {
-		const targets = getSelectedItems();
-		for(const t of targets) props.download(t);
+		props.download(getSelectedItems());
 	}
 
 	const onDelete = async (item?: Item) => {
