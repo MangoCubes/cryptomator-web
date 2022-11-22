@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
 
-export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item) => void}){
+export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item[]) => void}){
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
@@ -29,7 +29,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
 				const def = [];
-				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download(params.row.obj)} label='Download' disabled={querying}/>);
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying}/>);
 				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying}/>);
 				return def;
 			}
@@ -72,8 +72,7 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	const downloadSelected = () => {
-		const targets = getSelectedItems();
-		for(const t of targets) props.download(t);
+		props.download(getSelectedItems());
 	}
 
 	const onDelete = async (item?: Item) => {

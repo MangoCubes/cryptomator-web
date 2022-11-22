@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { EncryptedItem, Item, ItemPath, Vault } from "cryptomator-ts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { ItemDownloader, Progress } from "./ItemDownloader";
@@ -22,10 +22,10 @@ export function MainScreen(){
 		setDownloads(copy);
 	}
 
-	const startDownload = (item: Item) => {
+	const startDownload = (items: Item[]) => {
 		if(!client) return;
 		const copy = {...downloads};
-		copy[item.fullName] = new ItemDownloader(item, client, updateDownload);
+		for(const item of items) copy[item.fullName] = new ItemDownloader(item, client, updateDownload);
 		setDownloads(copy);
 	}
 
