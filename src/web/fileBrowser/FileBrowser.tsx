@@ -2,9 +2,14 @@ import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Del
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, Vault } from "cryptomator-ts";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { VaultDialog } from "./VaultDialog";
+
+type DirCache = {
+	child: {[dir: string]: DirCache};
+	explored: boolean;
+}
 
 export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item[]) => void}){
 
@@ -14,6 +19,8 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
 	const [querying, setQuerying] = useState(false);
+
+	const cache = useRef<DirCache>({child: {}, explored: false});
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -45,8 +52,18 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 		try {
 			setLoading(true);
 			setItems([]);
-			setItems(await props.client.listItems('/' + absDir.join('/')));
+			const res = await props.client.listItems('/' + absDir.join('/'));
+			setItems(res);
 			setDir(absDir);
+			let current = cache.current;
+			for(const p of absDir) current = current.child[p];
+			for(const r of res){
+				current.child[r.name] = {
+					child: {},
+					explored: false
+				};
+				current.explored = true;
+			}
 		} catch(e) {
 			setItems(temp);
 		} finally {

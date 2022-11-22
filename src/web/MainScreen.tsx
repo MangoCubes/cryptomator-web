@@ -9,6 +9,13 @@ import { DownloadProgress } from "./sidebar/DownloadProgress";
 import { Sidebar } from "./sidebar/Sidebar";
 import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
 
+/**
+ * Each browser needs a sidebar because each handles fetching directory differently
+ * 1. Add caching directories
+ * 2. Add state that holds tree structure
+ * 3. Create tree based on that structure
+ */
+
 export function MainScreen(){
 
 	const [client, setClient] = useState<null | WebDAV>(null);
