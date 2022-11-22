@@ -1,9 +1,11 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
-import { Item, Vault } from "cryptomator-ts";
+import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
+import { ItemDownloader } from "../ItemDownloader";
+import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
 type DirCache = {
@@ -11,7 +13,14 @@ type DirCache = {
 	explored: boolean;
 }
 
-export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => void, download: (item: Item[]) => void}){
+export function FileBrowser(props: {
+	client: WebDAV,
+	setVault: (vault: Vault) => void,
+	download: (item: Item[]) => void,
+	logout: () => void,
+	downloads: {[path: ItemPath]: ItemDownloader},
+	openDownloads: () => void
+}){
 
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<Item[]>([]);
@@ -173,32 +182,35 @@ export function FileBrowser(props: {client: WebDAV, setVault: (vault: Vault) => 
 	}
 
 	return (
-		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
-			<AppBar position='static'>
-				{toolbar()}
-			</AppBar>
-			<Box m={1} sx={{flex: 1}}>
-				<DataGrid
-					onRowClick={onRowClick}
-					disableSelectionOnClick
-					isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
-					columns={columns}
-					rows={getRows()}
-					loading={loading}
-					checkboxSelection
-					selectionModel={sel}
-					onSelectionModelChange={items => {
-						if(!loading) setSel(items);
-					}}
-				/>
+		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
+			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads}/>
+			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
+				<AppBar position='static'>
+					{toolbar()}
+				</AppBar>
+				<Box m={1} sx={{flex: 1}}>
+					<DataGrid
+						onRowClick={onRowClick}
+						disableSelectionOnClick
+						isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
+						columns={columns}
+						rows={getRows()}
+						loading={loading}
+						checkboxSelection
+						selectionModel={sel}
+						onSelectionModelChange={items => {
+							if(!loading) setSel(items);
+						}}
+					/>
+				</Box>
+				<Zoom in={showButton()}>
+					<Fab onClick={() => setOpen(true)} variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
+						<LockOpen/>
+						Unlock
+					</Fab>
+				</Zoom>
+				<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={props.setVault}/>
 			</Box>
-			<Zoom in={showButton()}>
-				<Fab onClick={() => setOpen(true)} variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
-					<LockOpen/>
-					Unlock
-				</Fab>
-			</Zoom>
-			<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={props.setVault}/>
 		</Box>
 	);
 }

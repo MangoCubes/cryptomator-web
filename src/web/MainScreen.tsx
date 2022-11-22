@@ -47,15 +47,14 @@ export function MainScreen(){
 
 	if(client){
 		return (
-			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)} downloads={downloads} openDownloads={() => setOpen(true)}/>
+			<>
 				{
 					vault === null
-					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
-					: <VaultBrowser client={client} vault={vault} download={startDownload}/>
+					? <FileBrowser client={client} logout={() => setClient(null)} setVault={setVault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
+					: <VaultBrowser client={client} vault={vault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
 				}
 				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads} clear={clearDownloads}/>
-			</Box>
+			</>
 		)
 	} else {
 		return <Login setClient={setClient}/>
