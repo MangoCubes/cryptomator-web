@@ -205,7 +205,15 @@ export function FileBrowser(props: {
 
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-			<FileSidebar logout={props.logout} downloads={props.downloads} openDownloads={props.openDownloads} tree={items} dir={dir} setDir={setDir}/>
+			<FileSidebar
+				logout={props.logout}
+				downloads={props.downloads}
+				openDownloads={props.openDownloads}
+				tree={items}
+				dir={dir}
+				setDir={setDir}
+				loadDir={loadItems}
+			/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
 				<AppBar position='static'>
 					{toolbar()}
