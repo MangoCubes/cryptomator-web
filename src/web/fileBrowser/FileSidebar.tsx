@@ -1,8 +1,10 @@
 import { Download, Logout } from "@mui/icons-material";
+import { TreeItem, TreeView } from "@mui/lab";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
 import { ItemPath } from "cryptomator-ts";
+import { useState } from "react";
 import { ItemDownloader, Progress } from "../ItemDownloader";
-import { DirCache } from "./FileBrowser";
+import { DirCache, ExpStatus } from "./FileBrowser";
 
 export function FileSidebar(props: {
 	logout: () => void,
@@ -14,6 +16,8 @@ export function FileSidebar(props: {
 }){
 
 	const drawer = 240;
+
+	const [expanded, setExpanded] = useState<string[]>([]);
 
 	const getMessage = () => {
 		let done = 0;
@@ -38,6 +42,27 @@ export function FileSidebar(props: {
 		return inProgress;
 	}
 
+	const getTreeItems = (dirKey: string) => {
+		const subDir = props.tree[dirKey];
+		if(!subDir) return null;
+		if(subDir.explored === ExpStatus.Ready) {
+			const dirs = subDir.child.filter(i => i.type === 'd');
+			return dirs.map(dir =>
+				<TreeItem nodeId={dir.fullName} key={dir.fullName} label={dir.name}>
+					{getTreeItems(dir.fullName)}
+				</TreeItem>
+			);
+		} else if(subDir.explored === ExpStatus.Error) {
+			return [
+				<TreeItem nodeId='error' key='error' label='Error loading'/>
+			]
+		} else {
+			return [
+				<TreeItem nodeId='loading' key='loading' label='Loading...'/>
+			]
+		}
+	}
+
 	return (
 	<Drawer variant='permanent' sx={{ width: drawer }} open={true} anchor='left'>
 		<Toolbar sx={{ maxWidth: drawer }}>
@@ -47,7 +72,9 @@ export function FileSidebar(props: {
 		</Toolbar>
 		<Divider/>
 		<Box sx={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
-			<Box sx={{flex: 1}}/>
+			<TreeView sx={{flex: 1}} expanded={expanded} onNodeToggle={(e, ids) => setExpanded(ids)}>
+				{getTreeItems('/')}	
+			</TreeView>
 			<List sx={{ width: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
