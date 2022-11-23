@@ -67,19 +67,22 @@ export function FileBrowser(props: {
 		return items[concated]?.child ?? [];
 	}
 
-	const loadItems = async (absDir: string[], moveToDir?: boolean) => {
+	const loadItems = async (absDir: string[], controlBrowser?: boolean, bypassCache?: boolean) => {
 		const dir = '/' + absDir.join('/');
 		const temp = getDirItems(absDir);
-		const stat = {...items};
-		stat[dir] = {
-			explored: ExpStatus.Querying,
-			child: []
-		};
-		setItems(stat);
 		try {
-			setLoading(true);
-			const res = await props.client.listItems(dir);
-			if (moveToDir) setDir(absDir);
+			if (controlBrowser) setLoading(true);
+			let res;
+			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
+				const stat = {...items};
+				stat[dir] = {
+					explored: ExpStatus.Querying,
+					child: []
+				};
+				setItems(stat);
+				res = await props.client.listItems(dir);
+			} else res = items[dir].child;
+			if (controlBrowser) setDir(absDir);
 			const copy = {...items};
 			copy[dir] = {
 				child: res,
@@ -99,7 +102,7 @@ export function FileBrowser(props: {
 				explored: ExpStatus.Error
 			}
 		} finally {
-			setLoading(false);
+			if (controlBrowser) setLoading(false);
 		}
 	}
 
@@ -138,7 +141,7 @@ export function FileBrowser(props: {
 	}
 
 	const reload = async () => {
-		await loadItems(dir);
+		await loadItems(dir, true, true);
 	}
 
 	const getRows = () => {
