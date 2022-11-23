@@ -45,7 +45,6 @@ export function FileSidebar(props: {
 
 	const getTreeItems = (dirKey: string) => {
 		const subDir = props.tree[dirKey];
-		console.log(dirKey)
 		if(subDir.explored === ExpStatus.Ready) {
 			const dirs = subDir.child.filter(i => i.type === 'd');
 			if(dirs.length === 0) return <TreeItem nodeId={dirKey + 'None'} key={dirKey + 'None'} label='No folders'/>

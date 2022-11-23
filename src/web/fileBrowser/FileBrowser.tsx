@@ -83,15 +83,18 @@ export function FileBrowser(props: {
 				res = await props.client.listItems(dir);
 			} else res = items[dir].child;
 			if (controlBrowser) setDir(absDir);
-			const copy = {...items};
+			
+			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
+				const copy = {...items};
 			copy[dir] = {
 				child: res,
 				explored: ExpStatus.Ready
 			}
-			for(const r of res){
-				if (r.type === 'd') copy[r.fullName] = {
-					child: [],
-					explored: ExpStatus.NotStarted
+				for(const r of res){
+					if (r.type === 'd') copy[r.fullName] = {
+						child: [],
+						explored: ExpStatus.NotStarted
+					}
 				}
 			}
 			setItems(copy);
