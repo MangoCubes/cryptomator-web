@@ -71,33 +71,31 @@ export function FileBrowser(props: {
 		const dir = '/' + absDir.join('/');
 		const temp = getDirItems(absDir);
 		try {
-			if (controlBrowser) setLoading(true);
-			let res;
+			
 			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
+				if (controlBrowser) setLoading(true);
 				const stat = {...items};
 				stat[dir] = {
 					explored: ExpStatus.Querying,
 					child: []
 				};
 				setItems(stat);
-				res = await props.client.listItems(dir);
-			} else res = items[dir].child;
-			if (controlBrowser) setDir(absDir);
-			
-			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
+				const res = await props.client.listItems(dir);
 				const copy = {...items};
-			copy[dir] = {
-				child: res,
-				explored: ExpStatus.Ready
-			}
+				copy[dir] = {
+					child: res,
+					explored: ExpStatus.Ready
+				}
 				for(const r of res){
 					if (r.type === 'd') copy[r.fullName] = {
 						child: [],
 						explored: ExpStatus.NotStarted
 					}
 				}
+				setItems(copy);
 			}
-			setItems(copy);
+			if (controlBrowser) setDir(absDir);
+			
 		} catch(e) {
 			const copy = {...items};
 			copy[dir] = {
