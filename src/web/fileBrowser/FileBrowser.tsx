@@ -84,6 +84,12 @@ export function FileBrowser(props: {
 				child: res,
 				explored: ExpStatus.Ready
 			}
+			for(const r of res){
+				if (r.type === 'd') copy[r.fullName] = {
+					child: [],
+					explored: ExpStatus.NotStarted
+				}
+			}
 			setItems(copy);
 		} catch(e) {
 			const copy = {...items};
