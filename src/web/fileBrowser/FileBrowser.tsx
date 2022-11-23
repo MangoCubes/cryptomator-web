@@ -29,6 +29,7 @@ export function FileBrowser(props: {
 	openDownloads: () => void
 }){
 
+	// Note to self: Uses of path notation through string array should be kept to minimum
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
 	const [loading, setLoading] = useState(false);
@@ -66,7 +67,7 @@ export function FileBrowser(props: {
 		return items[concated]?.child ?? [];
 	}
 
-	const loadItems = async (absDir: string[]) => {
+	const loadItems = async (absDir: string[], moveToDir?: boolean) => {
 		const dir = '/' + absDir.join('/');
 		const temp = getDirItems(absDir);
 		const stat = {...items};
@@ -78,7 +79,7 @@ export function FileBrowser(props: {
 		try {
 			setLoading(true);
 			const res = await props.client.listItems(dir);
-			setDir(absDir);
+			if (moveToDir) setDir(absDir);
 			const copy = {...items};
 			copy[dir] = {
 				child: res,
@@ -104,8 +105,8 @@ export function FileBrowser(props: {
 
 	const loadSubDir = async (subDir: string | null) => {
 		if (querying) return;
-		if (subDir === null) await loadItems(dir.slice(0, -1));
-		else await loadItems([...dir, subDir]);
+		if (subDir === null) await loadItems(dir.slice(0, -1), true);
+		else await loadItems([...dir, subDir], true);
 	}
 	
 	const delItems = async (item: Item) => {
