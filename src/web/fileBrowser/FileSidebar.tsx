@@ -72,7 +72,7 @@ export function FileSidebar(props: {
 	const onNodeToggle = (e: SyntheticEvent, ids: string[]) => {
 		setExpanded(ids);
 		for(const id of ids){
-			if(props.tree[id].explored === ExpStatus.NotStarted){
+			if(!props.tree[id] || props.tree[id].explored === ExpStatus.NotStarted){
 				const splitted = id.split('/').splice(1);
 				props.loadDir(splitted);
 			}
