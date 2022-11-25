@@ -1,9 +1,19 @@
 import { Download, Lock, Logout } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { ItemPath, Vault } from "cryptomator-ts";
+import { EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { ItemDownloader, Progress } from "../ItemDownloader";
+import { DirCache } from "../../types/types";
 
-export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: () => void, downloads: {[path: ItemPath]: ItemDownloader}, openDownloads: () => void}){
+export function VaultSidebar(props: {
+	vault: Vault,
+	lock: () => void,
+	downloads: {[path: ItemPath]: ItemDownloader},
+	openDownloads: () => void,
+	tree: DirCache<EncryptedItem>,
+	dir: string[],
+	setDir: (dir: string[]) => void,
+	loadDir: (dir: string[]) => void
+}){
 
 	const drawer = 240;
 
@@ -34,7 +44,7 @@ export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: (
 	<Drawer variant='permanent' sx={{ width: drawer }} open={true} anchor='left'>
 		<Toolbar sx={{ maxWidth: drawer }}>
 			<ListItem>
-				<ListItemText primary={props.vault ? props.vault.name : 'No vault selected'}/>
+				<ListItemText primary={props.vault.name}/>
 			</ListItem>
 		</Toolbar>
 		<Divider/>
@@ -49,11 +59,11 @@ export function Sidebar(props: {logout: () => void, vault: Vault | null, lock: (
 					</ListItemIcon>
 					<ListItemText primary={'Downloads'} secondary={getMessage()}/>
 				</ListItemButton>
-				<ListItemButton onClick={props.vault ? props.lock : props.logout}>
+				<ListItemButton onClick={props.lock}>
 					<ListItemIcon>
-						{props.vault ? <Lock/> : <Logout/>}
+						<Lock/>
 					</ListItemIcon>
-					<ListItemText primary={props.vault ? 'Close vault' : 'Logout'}/>
+					<ListItemText primary='Close vault'/>
 				</ListItemButton>
 			</List>
 		</Box>
