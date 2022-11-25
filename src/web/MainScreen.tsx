@@ -1,12 +1,10 @@
-import { Box } from "@mui/material";
-import { EncryptedItem, Item, ItemPath, Vault } from "cryptomator-ts";
-import { useState, useEffect } from "react";
+import { Item, ItemPath, Vault } from "cryptomator-ts";
+import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { ItemDownloader, Progress } from "./ItemDownloader";
 import { Login } from "./Login";
 import { DownloadProgress } from "./sidebar/DownloadProgress";
-import { Sidebar } from "./sidebar/Sidebar";
 import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
 
 /**

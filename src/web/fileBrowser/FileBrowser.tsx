@@ -4,6 +4,7 @@ import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, Grid
 import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
+import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
@@ -23,18 +24,6 @@ enum Querying {
 	Full
 }
 
-export type DirCache = {[key: string]: {
-	child: Item[];
-	explored: ExpStatus;
-}};
-
-export enum ExpStatus {
-	Ready,
-	Querying,
-	NotStarted,
-	Error
-}
-
 export function FileBrowser(props: {
 	client: WebDAV,
 	setVault: (vault: Vault) => void,
@@ -48,7 +37,7 @@ export function FileBrowser(props: {
 	const [dir, setDir] = useState<string[]>([]);
 
 	// setItems should never be used outside saveItems
-	const [items, setItems] = useState<DirCache>({});
+	const [items, setItems] = useState<DirCache<Item>>({});
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
@@ -59,9 +48,9 @@ export function FileBrowser(props: {
 	 * 2. Whenever itemsCache gets updated, it is copied over to items using setItems
 	 * This removes potential conflict and race conditions by making sure there are no two conflicting instances of the items that needs to be written into the state
 	 */
-	const itemsCache = useRef<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
+	const itemsCache = useRef<DirCache<Item>>({'/': {child: [], explored: ExpStatus.NotStarted}});
 
-	const saveItems = (data: DirCache) => {
+	const saveItems = (data: DirCache<Item>) => {
 		for (const k in data) itemsCache.current[k] = data[k];
 		setItems({...itemsCache.current});
 	}
@@ -102,14 +91,14 @@ export function FileBrowser(props: {
 		try {
 			if (bypassCache || items[dir]?.explored !== ExpStatus.Ready) {
 				if (controlBrowser) setQuerying(Querying.Full);
-				const status: DirCache = {};
+				const status: DirCache<Item> = {};
 				status[dir] = {
 					explored: ExpStatus.Querying,
 					child: []
 				};
 				saveItems(status);
 				const res = await props.client.listItems(dir);
-				const copy: DirCache = {};
+				const copy: DirCache<Item> = {};
 				copy[dir] = {
 					child: res,
 					explored: ExpStatus.Ready

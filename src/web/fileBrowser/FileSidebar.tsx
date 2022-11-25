@@ -1,16 +1,16 @@
 import { ChevronRight, Download, ExpandMore, Logout } from "@mui/icons-material";
 import { TreeItem, TreeView } from "@mui/lab";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { ItemPath } from "cryptomator-ts";
+import { Item, ItemPath } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
+import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader, Progress } from "../ItemDownloader";
-import { DirCache, ExpStatus } from "./FileBrowser";
 
 export function FileSidebar(props: {
 	logout: () => void,
 	downloads: {[path: ItemPath]: ItemDownloader},
 	openDownloads: () => void,
-	tree: DirCache,
+	tree: DirCache<Item>,
 	dir: string[],
 	setDir: (dir: string[]) => void,
 	loadDir: (dir: string[]) => void
