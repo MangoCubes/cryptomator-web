@@ -46,12 +46,25 @@ export function FileBrowser(props: {
 
 	// Note to self: Uses of path notation through string array should be kept to minimum
 	const [dir, setDir] = useState<string[]>([]);
+
+	// setItems should never be used outside saveItems
 	const [items, setItems] = useState<DirCache>({});
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
-
-	// Controls button availability
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
+
+	/**
+	 * To handle multiple queries running asynchronously, the following approach is used:
+	 * 1. Whenever a query is done, its result is stored in itemsCache
+	 * 2. Whenever itemsCache gets updated, it is copied over to items using setItems
+	 * This removes potential conflict and race conditions by making sure there are no two conflicting instances of the items that needs to be written into the state
+	 */
+	const itemsCache = useRef<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
+
+	const saveItems = (data: DirCache) => {
+		for (const k in data) itemsCache.current[k] = data[k];
+		setItems({...itemsCache.current});
+	}
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -89,14 +102,14 @@ export function FileBrowser(props: {
 		try {
 			if (bypassCache || items[dir]?.explored !== ExpStatus.Ready) {
 				if (controlBrowser) setQuerying(Querying.Full);
-				const stat = {...items};
-				stat[dir] = {
+				const status: DirCache = {};
+				status[dir] = {
 					explored: ExpStatus.Querying,
 					child: []
 				};
-				setItems(stat);
+				saveItems(status);
 				const res = await props.client.listItems(dir);
-				const copy = {...items};
+				const copy: DirCache = {};
 				copy[dir] = {
 					child: res,
 					explored: ExpStatus.Ready
@@ -107,7 +120,7 @@ export function FileBrowser(props: {
 						explored: ExpStatus.NotStarted
 					}
 				}
-				setItems(copy);
+				saveItems(copy);
 			}
 			if (controlBrowser) setDir(absDir);
 		} catch(e) {
