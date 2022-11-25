@@ -48,7 +48,7 @@ export function FileBrowser(props: {
 	 * 2. Whenever itemsCache gets updated, it is copied over to items using setItems
 	 * This removes potential conflict and race conditions by making sure there are no two conflicting instances of the items that needs to be written into the state
 	 */
-	const itemsCache = useRef<DirCache<Item>>({'/': {child: [], explored: ExpStatus.NotStarted}});
+	const itemsCache = useRef<DirCache<Item>>({'/': {explored: ExpStatus.NotStarted}});
 
 	const saveItems = (data: DirCache<Item>) => {
 		for (const k in data) itemsCache.current[k] = data[k];
@@ -82,7 +82,9 @@ export function FileBrowser(props: {
 
 	const getDirItems = (absDir?: string[]) => {
 		const concated = '/' + (absDir ?? dir).join('/');
-		return items[concated]?.child ?? [];
+		const current = items[concated];
+		if(current?.explored === ExpStatus.Ready) return current.child;
+		return [];
 	}
 
 	const loadItems = async (absDir: string[], controlBrowser?: boolean, bypassCache?: boolean) => {
@@ -92,10 +94,7 @@ export function FileBrowser(props: {
 			if (bypassCache || items[dir]?.explored !== ExpStatus.Ready) {
 				if (controlBrowser) setQuerying(Querying.Full);
 				const status: DirCache<Item> = {};
-				status[dir] = {
-					explored: ExpStatus.Querying,
-					child: []
-				};
+				status[dir] = {explored: ExpStatus.Querying};
 				saveItems(status);
 				const res = await props.client.listItems(dir);
 				const copy: DirCache<Item> = {};
@@ -103,21 +102,12 @@ export function FileBrowser(props: {
 					child: res,
 					explored: ExpStatus.Ready
 				}
-				for(const r of res){
-					if (r.type === 'd') copy[r.fullName] = {
-						child: [],
-						explored: ExpStatus.NotStarted
-					}
-				}
 				saveItems(copy);
 			}
 			if (controlBrowser) setDir(absDir);
 		} catch(e) {
 			const copy = {...items};
-			copy[dir] = {
-				child: temp,
-				explored: ExpStatus.Error
-			}
+			copy[dir] = {explored: ExpStatus.Error};
 		} finally {
 			if (controlBrowser) setQuerying(Querying.None);
 		}
