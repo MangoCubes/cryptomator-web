@@ -8,6 +8,21 @@ import { ItemDownloader } from "../ItemDownloader";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
+enum Querying {
+	/**
+	 * Disable nothing
+	 */
+	None,
+	/**
+	 * Show items, but disallow changing dir and interacting with buttons
+	 */
+	Partial,
+	/**
+	 * Hide items and show loading icon instead
+	 */
+	Full
+}
+
 export type DirCache = {[key: string]: {
 	child: Item[];
 	explored: ExpStatus;
@@ -32,10 +47,11 @@ export function FileBrowser(props: {
 	// Note to self: Uses of path notation through string array should be kept to minimum
 	const [dir, setDir] = useState<string[]>([]);
 	const [items, setItems] = useState<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
-	const [loading, setLoading] = useState(false);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
-	const [querying, setQuerying] = useState(false);
+
+	// Controls button availability
+	const [querying, setQuerying] = useState<Querying>(Querying.None);
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
@@ -51,15 +67,15 @@ export function FileBrowser(props: {
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
 				const def = [];
-				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying}/>);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying}/>);
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying !== Querying.None}/>);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying !== Querying.None}/>);
 				return def;
 			}
 		}
 	], [props.download, dir, querying]);
 	
 	useEffect(() => {
-		loadItems(dir);
+		loadItems([]);
 	}, []);
 
 	const getDirItems = (absDir?: string[]) => {
@@ -71,9 +87,8 @@ export function FileBrowser(props: {
 		const dir = '/' + absDir.join('/');
 		const temp = getDirItems(absDir);
 		try {
-			
 			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
-				if (controlBrowser) setLoading(true);
+				if (controlBrowser) setQuerying(Querying.Full);
 				const stat = {...items};
 				stat[dir] = {
 					explored: ExpStatus.Querying,
@@ -95,7 +110,6 @@ export function FileBrowser(props: {
 				setItems(copy);
 			}
 			if (controlBrowser) setDir(absDir);
-			
 		} catch(e) {
 			const copy = {...items};
 			copy[dir] = {
@@ -103,12 +117,12 @@ export function FileBrowser(props: {
 				explored: ExpStatus.Error
 			}
 		} finally {
-			if (controlBrowser) setLoading(false);
+			if (controlBrowser) setQuerying(Querying.None);
 		}
 	}
 
 	const loadSubDir = async (subDir: string | null) => {
-		if (querying) return;
+		if (querying !== Querying.None) return;
 		if (subDir === null) await loadItems(dir.slice(0, -1), true);
 		else await loadItems([...dir, subDir], true);
 	}
@@ -129,7 +143,7 @@ export function FileBrowser(props: {
 	}
 
 	const onDelete = async (item?: Item) => {
-		setQuerying(true);
+		setQuerying(Querying.Partial);
 		if(item) await delItems(item);
 		else {
 			const targets = getSelectedItems();
@@ -137,7 +151,7 @@ export function FileBrowser(props: {
 			for(const t of targets) tasks.push(delItems(t));
 			await Promise.all(tasks);
 		}
-		setQuerying(false);
+		setQuerying(Querying.None);
 		await reload();
 	}
 
@@ -146,7 +160,7 @@ export function FileBrowser(props: {
 	}
 
 	const getRows = () => {
-		if (loading) return [];
+		if (querying === Querying.Full) return [];
 		else {
 			const rows = [];
 			if(dir.length){
@@ -192,14 +206,14 @@ export function FileBrowser(props: {
 	}
 	
 	const toolbar = () => {
-		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying}/>;
+		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying !== Querying.None}/>;
 		else return (
 			<Toolbar>
 				<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
 				<Box sx={{flex: 1}}/>
 				<Tooltip title='Refresh'>
 					<span>
-						<IconButton edge='end' onClick={reload} disabled={loading || querying}>
+						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>
 							<Refresh/>
 						</IconButton>
 					</span>
@@ -230,11 +244,11 @@ export function FileBrowser(props: {
 						isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
 						columns={columns}
 						rows={getRows()}
-						loading={loading}
+						loading={querying === Querying.Full}
 						checkboxSelection
 						selectionModel={sel}
 						onSelectionModelChange={items => {
-							if(!loading) setSel(items);
+							if(querying !== Querying.None) setSel(items);
 						}}
 					/>
 				</Box>

@@ -56,11 +56,11 @@ export function FileSidebar(props: {
 		} else if(subDir.explored === ExpStatus.Error) {
 			return [
 				<TreeItem nodeId={dirKey + 'Error'} key={dirKey + 'Error'} label='Error loading'/>
-			]
+			];
 		} else {
 			return [
 				<TreeItem nodeId={dirKey + 'Loading'} key={dirKey + 'Loading'} label='Loading...'/>
-			]
+			];
 		}
 	}
 
