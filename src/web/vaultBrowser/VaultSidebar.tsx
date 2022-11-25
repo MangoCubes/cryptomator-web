@@ -1,8 +1,9 @@
-import { Download, Lock, Logout } from "@mui/icons-material";
+import { Download, Lock } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
+import { DirID, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { ItemDownloader, Progress } from "../ItemDownloader";
 import { DirCache } from "../../types/types";
+import { DirInfo } from "./VaultBrowser";
 
 export function VaultSidebar(props: {
 	vault: Vault,
@@ -10,9 +11,9 @@ export function VaultSidebar(props: {
 	downloads: {[path: ItemPath]: ItemDownloader},
 	openDownloads: () => void,
 	tree: DirCache<EncryptedItem>,
-	dir: string[],
-	setDir: (dir: string[]) => void,
-	loadDir: (dir: string[]) => void
+	dir: DirInfo[],
+	setDir: (dirId: DirInfo[]) => void,
+	loadDir: (dirId: DirID) => void
 }){
 
 	const drawer = 240;

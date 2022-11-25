@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { VaultSidebar } from "./VaultSidebar";
 
 enum Querying {
 	/**
@@ -22,7 +23,7 @@ enum Querying {
 	Full
 }
 
-type DirInfo = {
+export type DirInfo = {
 	name: string;
 	id: DirID;
 };
@@ -40,6 +41,7 @@ export function VaultBrowser(props: {
 	client: WebDAV,
 	download: (item: EncryptedItem[], vault: Vault) => void,
 	downloads: {[path: ItemPath]: ItemDownloader},
+	lock: () => void,
 	openDownloads: () => void
 }){
 
@@ -144,34 +146,46 @@ export function VaultBrowser(props: {
 	}
 
 	return (
-		<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
-			<AppBar position='static'>
-				<Toolbar>
-					<Typography variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</Typography>
-					<Box sx={{flex: 1}}/>
-					<Tooltip title='Refresh'>
-						<span>
-							<IconButton edge='end'>
-								<Refresh/>
-							</IconButton>
-						</span>
-					</Tooltip>
-				</Toolbar>
-			</AppBar>
-			<Box m={1} sx={{flex: 1}}>
-				<DataGrid
-					onRowClick={onRowClick}
-					disableSelectionOnClick
-					isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
-					columns={columns}
-					rows={rows}
-					loading={querying === Querying.Full}
-					checkboxSelection
-					selectionModel={sel}
-					onSelectionModelChange={items => {
-						if(querying !== Querying.None) setSel(items);
-					}}
-				/>
+		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
+			<VaultSidebar
+				lock={props.lock}
+				downloads={props.downloads}
+				openDownloads={props.openDownloads}
+				tree={items}
+				dir={dir}
+				setDir={setDir}
+				loadDir={loadItems}
+				vault={props.vault}
+			/>
+			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
+				<AppBar position='static'>
+					<Toolbar>
+						<Typography variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</Typography>
+						<Box sx={{flex: 1}}/>
+						<Tooltip title='Refresh'>
+							<span>
+								<IconButton edge='end'>
+									<Refresh/>
+								</IconButton>
+							</span>
+						</Tooltip>
+					</Toolbar>
+				</AppBar>
+				<Box m={1} sx={{flex: 1}}>
+					<DataGrid
+						onRowClick={onRowClick}
+						disableSelectionOnClick
+						isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
+						columns={columns}
+						rows={rows}
+						loading={querying === Querying.Full}
+						checkboxSelection
+						selectionModel={sel}
+						onSelectionModelChange={items => {
+							if(querying !== Querying.None) setSel(items);
+						}}
+					/>
+				</Box>
 			</Box>
 		</Box>
 	)

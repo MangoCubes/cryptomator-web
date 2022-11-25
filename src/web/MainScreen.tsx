@@ -49,7 +49,7 @@ export function MainScreen(){
 				{
 					vault === null
 					? <FileBrowser client={client} logout={() => setClient(null)} setVault={setVault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
-					: <VaultBrowser client={client} vault={vault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
+					: <VaultBrowser client={client} lock={() => setVault(null)} vault={vault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
 				}
 				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads} clear={clearDownloads}/>
 			</>
