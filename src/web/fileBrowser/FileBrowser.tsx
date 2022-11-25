@@ -2,7 +2,7 @@ import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Del
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { ItemDownloader } from "../ItemDownloader";
 import { FileSidebar } from "./FileSidebar";
@@ -46,7 +46,7 @@ export function FileBrowser(props: {
 
 	// Note to self: Uses of path notation through string array should be kept to minimum
 	const [dir, setDir] = useState<string[]>([]);
-	const [items, setItems] = useState<DirCache>({'/': {child: [], explored: ExpStatus.NotStarted}});
+	const [items, setItems] = useState<DirCache>({});
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [open, setOpen] = useState(false);
 
@@ -87,7 +87,7 @@ export function FileBrowser(props: {
 		const dir = '/' + absDir.join('/');
 		const temp = getDirItems(absDir);
 		try {
-			if (bypassCache || items[dir].explored !== ExpStatus.Ready) {
+			if (bypassCache || items[dir]?.explored !== ExpStatus.Ready) {
 				if (controlBrowser) setQuerying(Querying.Full);
 				const stat = {...items};
 				stat[dir] = {
