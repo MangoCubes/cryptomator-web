@@ -67,7 +67,7 @@ export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<Encry
 	}
 
 	if(loadState.state === States.None) return (
-		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label='Loading...'/>
+		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label={props.dir.decryptedName}/>
 	);
 	else return (
 		<TreeItem nodeId={loadState.id} key={props.dir.fullName} label={props.dir.decryptedName}>
