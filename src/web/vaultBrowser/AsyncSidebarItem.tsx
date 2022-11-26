@@ -66,9 +66,12 @@ export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<Encry
 		} else return <TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label='Loading...'/>
 	}
 
-	return (
-		<TreeItem nodeId={props.dir.fullName} key={props.dir.fullName} label={props.dir.decryptedName}>
+	if(loadState.state === States.None) return (
+		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label='Loading...'/>
+	);
+	else return (
+		<TreeItem nodeId={loadState.id} key={props.dir.fullName} label={props.dir.decryptedName}>
 			{getInnerItems()}
 		</TreeItem>
-	);
+	)
 }
