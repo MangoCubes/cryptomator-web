@@ -81,7 +81,7 @@ export function FileSidebar(props: {
 
 	return (
 	<Drawer variant='permanent' sx={{ width: drawer }} open={true} anchor='left'>
-		<Toolbar sx={{ maxWidth: drawer }}>
+		<Toolbar sx={{ width: drawer }}>
 			<ListItem>
 				<ListItemText primary={'No vault selected'}/>
 			</ListItem>
@@ -89,7 +89,7 @@ export function FileSidebar(props: {
 		<Divider/>
 		<Box sx={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
 			<TreeView
-				sx={{flex: 1}}
+				sx={{flex: 1, maxWidth: drawer, overflow: 'auto'}}
 				expanded={expanded}
 				onNodeToggle={onNodeToggle}
 				defaultCollapseIcon={<ExpandMore/>}
@@ -97,7 +97,7 @@ export function FileSidebar(props: {
 			>
 				{getTreeItems('/')}	
 			</TreeView>
-			<List sx={{ width: drawer, overflow: 'auto'}}>
+			<List sx={{ maxWidth: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
 						<Badge badgeContent={getCount()} color='primary'>
