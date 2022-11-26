@@ -71,6 +71,10 @@ export function VaultBrowser(props: {
 		}
 	], [props.download]);
 
+	useEffect(() => {
+		loadItems('' as DirID, true);
+	}, [])
+
 	const rows = useMemo(() => {
 		const rows = [];
 		if(dir.length){
@@ -124,25 +128,27 @@ export function VaultBrowser(props: {
 		}
 	}
 
-	const changeDir = async (subDir: DirInfo | null) => {
+	const changeDir = async (subDir: EncryptedDir | null) => {
 		setQuerying(Querying.Full);
 		if (subDir === null) {
 			const newDir = dir.slice(0, -1);
 			await loadItems(dir[dir.length - 1].id);
 			setDir(newDir);
 		} else {
-			await loadItems(subDir.id);
-			setDir([...dir, subDir]);
+			const dirInfo = {
+				name: subDir.decryptedName,
+				id: await subDir.getDirId()
+			}
+			await loadItems(dirInfo.id);
+			setDir([...dir, dirInfo]);
 		}
 		setQuerying(Querying.None);
 	}
 
 	const onRowClick = async (r: GridRowParams) => {
+		if(querying !== Querying.None) return;
 		if(r.row.type === 'parent') changeDir(null);
-		else if(r.row.type === 'd') changeDir({
-			name: (r.row.obj as EncryptedDir).decryptedName,
-			id: await (r.row.obj as EncryptedDir).getDirId()
-		});
+		else if(r.row.type === 'd') changeDir(r.row.obj);
 	}
 
 	return (
@@ -182,7 +188,7 @@ export function VaultBrowser(props: {
 						checkboxSelection
 						selectionModel={sel}
 						onSelectionModelChange={items => {
-							if(querying !== Querying.None) setSel(items);
+							if(querying === Querying.None) setSel(items);
 						}}
 					/>
 				</Box>
