@@ -64,12 +64,12 @@ export function VaultBrowser(props: {
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
 				const def = [];
-				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj], props.vault)} label='Download' />);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' showInMenu />);
+				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} disabled={querying !== Querying.None} onClick={() => props.download([params.row.obj], props.vault)} label='Download' />);
+				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} disabled={querying !== Querying.None} label='Delete' showInMenu />);
 				return def;
 			}
 		}
-	], [props.download]);
+	], [props.download, querying]);
 
 	useEffect(() => {
 		loadItems('' as DirID, true);
@@ -98,7 +98,7 @@ export function VaultBrowser(props: {
 			});
 		}
 		return rows;
-	}, [items]);
+	}, [items, dir]);
 
 	const saveItems = (data: DirCache<EncryptedItem>) => {
 		for(const k in data) itemsCache.current[k] = data[k];
