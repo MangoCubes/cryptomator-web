@@ -11,4 +11,3 @@ export type DirCache<T> = {[key: string]: {
 } | {
 	explored: Exclude<ExpStatus, ExpStatus.Ready>;
 }};
-
