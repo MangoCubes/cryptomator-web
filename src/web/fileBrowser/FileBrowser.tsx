@@ -74,10 +74,10 @@ export function FileBrowser(props: {
 				return def;
 			}
 		}
-	], [props.download, dir, querying]);
+	], [props.download, querying]);
 	
 	useEffect(() => {
-		loadItems([]);
+		loadItems([], true);
 	}, []);
 
 	const getDirItems = (absDir?: string[]) => {
@@ -89,34 +89,34 @@ export function FileBrowser(props: {
 
 	const loadItems = async (absDir: string[], controlBrowser?: boolean, bypassCache?: boolean) => {
 		const dir = '/' + absDir.join('/');
-		const temp = getDirItems(absDir);
+		const temp = items[dir] ?? {
+			child: [],
+			explored: ExpStatus.NotStarted
+		}
+		if(temp.explored === ExpStatus.Ready && !bypassCache) return;
 		try {
-			if (bypassCache || items[dir]?.explored !== ExpStatus.Ready) {
-				if (controlBrowser) setQuerying(Querying.Full);
-				const status: DirCache<Item> = {};
-				status[dir] = {explored: ExpStatus.Querying};
-				saveItems(status);
-				const res = await props.client.listItems(dir);
-				const copy: DirCache<Item> = {};
-				copy[dir] = {
-					child: res,
-					explored: ExpStatus.Ready
-				}
-				saveItems(copy);
+			const update: DirCache<Item> = {};
+			update[dir] = {explored: ExpStatus.Querying};
+			saveItems(update);
+			const res = await props.client.listItems(dir);
+			update[dir] = {
+				child: res,
+				explored: ExpStatus.Ready
 			}
+			saveItems(update);
 			if (controlBrowser) setDir(absDir);
 		} catch(e) {
 			const copy = {...items};
 			copy[dir] = {explored: ExpStatus.Error};
-		} finally {
-			if (controlBrowser) setQuerying(Querying.None);
 		}
 	}
 
 	const loadSubDir = async (subDir: string | null) => {
 		if (querying !== Querying.None) return;
+		setQuerying(Querying.Full)
 		if (subDir === null) await loadItems(dir.slice(0, -1), true);
 		else await loadItems([...dir, subDir], true);
+		setQuerying(Querying.None)
 	}
 	
 	const delItems = async (item: Item) => {
