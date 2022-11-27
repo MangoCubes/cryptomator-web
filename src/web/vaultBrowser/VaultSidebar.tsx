@@ -79,7 +79,7 @@ export function VaultSidebar(props: {
 
 	return (
 	<Drawer variant='permanent' sx={{ width: drawer }} open={true} anchor='left'>
-		<Toolbar sx={{ maxWidth: drawer }}>
+		<Toolbar sx={{ width: drawer }}>
 			<ListItem>
 				<ListItemText primary={props.vault.name}/>
 			</ListItem>

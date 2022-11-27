@@ -1,4 +1,6 @@
+import styled from "@emotion/styled";
 import { TreeItem } from "@mui/lab";
+import { Typography } from "@mui/material";
 import { DirID, EncryptedDir, EncryptedItem } from "cryptomator-ts";
 import { useEffect, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";
@@ -26,6 +28,12 @@ type LoadStatus = {
 	id: DirID;
 	items: EncryptedItem[];
 }
+
+const ItemLabel = styled(Typography)({
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	overflow: 'hidden'
+});
 
 export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<EncryptedItem>}){
 
@@ -61,19 +69,19 @@ export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<Encry
 		if(loadState.state === States.Full){
 			const dirs = loadState.items.filter(i => i.type === 'd') as EncryptedDir[];
 			if(dirs.length === 0) return (
-				<TreeItem nodeId={loadState.id + 'None'} key={loadState.id + 'None'} label='No folders'/>
+				<TreeItem nodeId={loadState.id + 'None'} key={loadState.id + 'None'} label={<ItemLabel>No folders</ItemLabel>}/>
 			);
 			return dirs.map(d => (
 				<AsyncSidebarItem dir={d} key={d.fullName} tree={props.tree}/>
 			));
-		} else return <TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label='Loading...'/>
+		} else return <TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label={<ItemLabel>Loading...</ItemLabel>}/>
 	}
 
 	if(loadState.state === States.None) return (
-		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label={props.dir.decryptedName}/>
+		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label={<ItemLabel>{props.dir.decryptedName}</ItemLabel>}/>
 	);
 	else return (
-		<TreeItem nodeId={loadState.id} key={loadState.id} label={props.dir.decryptedName}>
+		<TreeItem nodeId={loadState.id} key={loadState.id} label={<ItemLabel>{props.dir.decryptedName}</ItemLabel>}>
 			{getInnerItems()}
 		</TreeItem>
 	)
