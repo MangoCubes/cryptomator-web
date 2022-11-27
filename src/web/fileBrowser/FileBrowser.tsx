@@ -77,7 +77,7 @@ export function FileBrowser(props: {
 	], [props.download, querying]);
 	
 	useEffect(() => {
-		loadItems([], true);
+		loadItems([]);
 	}, []);
 
 	const getDirItems = (absDir?: string[]) => {
@@ -87,7 +87,7 @@ export function FileBrowser(props: {
 		return [];
 	}
 
-	const loadItems = async (absDir: string[], controlBrowser?: boolean, bypassCache?: boolean) => {
+	const loadItems = async (absDir: string[], bypassCache?: boolean) => {
 		const dir = '/' + absDir.join('/');
 		const temp = items[dir] ?? {
 			child: [],
@@ -104,7 +104,6 @@ export function FileBrowser(props: {
 				explored: ExpStatus.Ready
 			}
 			saveItems(update);
-			if (controlBrowser) setDir(absDir);
 		} catch(e) {
 			const copy = {...items};
 			copy[dir] = {explored: ExpStatus.Error};
@@ -113,10 +112,13 @@ export function FileBrowser(props: {
 
 	const loadSubDir = async (subDir: string | null) => {
 		if (querying !== Querying.None) return;
-		setQuerying(Querying.Full)
-		if (subDir === null) await loadItems(dir.slice(0, -1), true);
-		else await loadItems([...dir, subDir], true);
-		setQuerying(Querying.None)
+		setQuerying(Querying.Full);
+		let newDir: string[];
+		if (subDir === null) newDir = dir.slice(0, -1);
+		else newDir = [...dir, subDir];
+		await loadItems(newDir);
+		setDir(newDir);
+		setQuerying(Querying.None);
 	}
 	
 	const delItems = async (item: Item) => {
@@ -148,7 +150,7 @@ export function FileBrowser(props: {
 	}
 
 	const reload = async () => {
-		await loadItems(dir, true, true);
+		await loadItems(dir, true);
 	}
 
 	const getRows = () => {
