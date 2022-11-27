@@ -106,14 +106,19 @@ export function VaultBrowser(props: {
 	}
 
 	const loadItems = async (dirId: DirID, bypassCache?: boolean) => {
-		const temp = itemsCache.current[dirId] ?? {
-			child: [],
-			explored: ExpStatus.NotStarted
-		};
+		const temp = itemsCache.current[dirId] ?? {explored: ExpStatus.NotStarted};
 		if(temp.explored === ExpStatus.Ready && !bypassCache) return;
 		try {
 			const update: DirCache<EncryptedItem> = {};
-			update[dirId] = {explored: ExpStatus.Querying};
+			const existing = (
+				(temp.explored === ExpStatus.Ready || temp.explored === ExpStatus.Querying)
+				? temp.child
+				: []
+			);
+			update[dirId] = {
+				child: existing,
+				explored: ExpStatus.Querying
+			};
 			saveItems(update);
 			const newItems = await props.vault.listItems(dirId);
 			update[dirId] = {

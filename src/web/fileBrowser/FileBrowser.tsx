@@ -89,14 +89,19 @@ export function FileBrowser(props: {
 
 	const loadItems = async (absDir: string[], bypassCache?: boolean) => {
 		const dir = '/' + absDir.join('/');
-		const temp = items[dir] ?? {
-			child: [],
-			explored: ExpStatus.NotStarted
-		}
+		const temp = items[dir] ?? {explored: ExpStatus.NotStarted};
 		if(temp.explored === ExpStatus.Ready && !bypassCache) return;
 		try {
 			const update: DirCache<Item> = {};
-			update[dir] = {explored: ExpStatus.Querying};
+			const existing = (
+				(temp.explored === ExpStatus.Ready || temp.explored === ExpStatus.Querying)
+				? temp.child
+				: []
+			);
+			update[dir] = {
+				child: existing,
+				explored: ExpStatus.Querying
+			};
 			saveItems(update);
 			const res = await props.client.listItems(dir);
 			update[dir] = {

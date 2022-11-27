@@ -7,7 +7,7 @@ export enum ExpStatus {
 
 export type DirCache<T> = {[key: string]: {
 	child: T[];
-	explored: ExpStatus.Ready;
+	explored: ExpStatus.Ready | ExpStatus.Querying;
 } | {
-	explored: Exclude<ExpStatus, ExpStatus.Ready>;
+	explored: ExpStatus.NotStarted | ExpStatus.Error;
 }};
