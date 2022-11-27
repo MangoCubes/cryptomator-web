@@ -1,13 +1,18 @@
-import { Box } from "@mui/material";
-import { EncryptedDir, Item, ItemPath, Vault } from "cryptomator-ts";
+import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useState } from "react";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { ItemDownloader, Progress } from "./ItemDownloader";
 import { Login } from "./Login";
 import { DownloadProgress } from "./sidebar/DownloadProgress";
-import { Sidebar } from "./sidebar/Sidebar";
 import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
+
+/**
+ * Each browser needs a sidebar because each handles fetching directory differently
+ * 1. Add caching directories
+ * 2. Add state that holds tree structure
+ * 3. Create tree based on that structure
+ */
 
 export function MainScreen(){
 
@@ -40,15 +45,14 @@ export function MainScreen(){
 
 	if(client){
 		return (
-			<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
-				<Sidebar logout={() => setClient(null)} vault={vault} lock={() => setVault(null)} downloads={downloads} openDownloads={() => setOpen(true)}/>
+			<>
 				{
 					vault === null
-					? <FileBrowser client={client} setVault={setVault} download={startDownload}/>
-					: <VaultBrowser client={client} vault={vault} download={startDownload}/>
+					? <FileBrowser client={client} logout={() => setClient(null)} setVault={setVault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
+					: <VaultBrowser client={client} lock={() => setVault(null)} vault={vault} download={startDownload} downloads={downloads} openDownloads={() => setOpen(true)}/>
 				}
 				<DownloadProgress open={open} client={client} onClose={() => setOpen(false)} downloads={downloads} clear={clearDownloads}/>
-			</Box>
+			</>
 		)
 	} else {
 		return <Login setClient={setClient}/>
