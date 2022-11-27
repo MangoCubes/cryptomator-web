@@ -55,7 +55,7 @@ export function VaultSidebar(props: {
 			const dirs = subDir.child.filter(i => i.type === 'd') as EncryptedDir[];
 			if(dirs.length === 0) return <TreeItem nodeId='None' key='None' label='No folders'/>
 			return dirs.map(dir =>
-				<AsyncSidebarItem dir={dir} tree={props.tree}/>
+				<AsyncSidebarItem dir={dir} key={dir.fullName} tree={props.tree}/>
 			);
 		} else if(subDir.explored === ExpStatus.Error) {
 			return [
