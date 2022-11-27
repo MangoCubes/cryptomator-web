@@ -5,6 +5,7 @@ import { Item, ItemPath } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader, Progress } from "../ItemDownloader";
+import { SingleLine } from "../styled/SingleLine";
 
 export function FileSidebar(props: {
 	logout: () => void,
@@ -47,24 +48,24 @@ export function FileSidebar(props: {
 		const subDir = props.tree[dirKey];
 		if(!subDir){
 			return [
-				<TreeItem nodeId={dirKey + 'Loading'} key={dirKey + 'Loading'} label='Loading...'/>
+				<TreeItem nodeId={dirKey + 'Loading'} key={dirKey + 'Loading'} label={<SingleLine>Loading...</SingleLine>}/>
 			];
 		}
 		if(subDir.explored === ExpStatus.Ready) {
 			const dirs = subDir.child.filter(i => i.type === 'd');
-			if(dirs.length === 0) return <TreeItem nodeId={dirKey + 'None'} key={dirKey + 'None'} label='No folders'/>
+			if(dirs.length === 0) return <TreeItem nodeId={dirKey + 'None'} key={dirKey + 'None'} label={<SingleLine>No folders</SingleLine>}/>
 			return dirs.map(dir =>
-				<TreeItem nodeId={dir.fullName} key={dir.fullName} label={dir.name}>
+				<TreeItem nodeId={dir.fullName} key={dir.fullName} label={<SingleLine>{dir.name}</SingleLine>}>
 					{getTreeItems(dir.fullName)}
 				</TreeItem>
 			);
 		} else if(subDir.explored === ExpStatus.Error) {
 			return [
-				<TreeItem nodeId={dirKey + 'Error'} key={dirKey + 'Error'} label='Error loading'/>
+				<TreeItem nodeId={dirKey + 'Error'} key={dirKey + 'Error'} label={<SingleLine>Error loading</SingleLine>}/>
 			];
 		} else {
 			return [
-				<TreeItem nodeId={dirKey + 'Loading'} key={dirKey + 'Loading'} label='Loading...'/>
+				<TreeItem nodeId={dirKey + 'Loading'} key={dirKey + 'Loading'} label={<SingleLine>Loading...</SingleLine>}/>
 			];
 		}
 	}
