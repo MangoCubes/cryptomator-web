@@ -150,7 +150,9 @@ export function FileBrowser(props: {
 	}
 
 	const reload = async () => {
+		setQuerying(Querying.Full);
 		await loadItems(dir, true);
+		setQuerying(Querying.None);
 	}
 
 	const getRows = () => {
@@ -242,7 +244,7 @@ export function FileBrowser(props: {
 						checkboxSelection
 						selectionModel={sel}
 						onSelectionModelChange={items => {
-							if(querying !== Querying.None) setSel(items);
+							if(querying === Querying.None) setSel(items);
 						}}
 					/>
 				</Box>
