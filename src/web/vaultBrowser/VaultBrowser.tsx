@@ -54,7 +54,7 @@ export function VaultBrowser(props: {
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
-			if(params.row.type === 'parent') return <ArrowBack/>;
+			if(params.row.type === 'AAparent') return <ArrowBack/>;
 			else if(params.row.type === 'd') return <Folder/>;
 			else return <Article/>;
 		}},
@@ -65,7 +65,7 @@ export function VaultBrowser(props: {
 			getActions: (params: GridRowParams) => {
 				const def = [];
 				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} disabled={querying !== Querying.None} onClick={() => props.download([params.row.obj], props.vault)} label='Download' />);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} disabled={querying !== Querying.None} label='Delete' showInMenu />);
+				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} disabled={querying !== Querying.None} label='Delete' showInMenu />);
 				return def;
 			}
 		}
@@ -80,9 +80,9 @@ export function VaultBrowser(props: {
 		if(dir.length){
 			rows.push(
 				{
-					id: 'parent',
+					id: 'AAparent',
 					name: 'Up one level',
-					type: 'parent'
+					type: 'AAparent'
 				}
 			);
 		}
@@ -152,7 +152,7 @@ export function VaultBrowser(props: {
 
 	const onRowClick = async (r: GridRowParams) => {
 		if(querying !== Querying.None) return;
-		if(r.row.type === 'parent') changeDir(null);
+		if(r.row.type === 'AAparent') changeDir(null);
 		else if(r.row.type === 'd') changeDir(r.row.obj);
 	}
 
@@ -190,9 +190,17 @@ export function VaultBrowser(props: {
 				</AppBar>
 				<Box m={1} sx={{flex: 1}}>
 					<DataGrid
+						initialState={{
+							sorting: {
+								sortModel: [
+									{field: 'type', sort: 'asc'},
+									{field: 'name', sort: 'desc'}
+								],
+							}
+						}}
 						onRowClick={onRowClick}
 						disableSelectionOnClick
-						isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
+						isRowSelectable={(params: GridRowParams) => params.row.type === 'f'}
 						columns={columns}
 						rows={rows}
 						loading={querying === Querying.Full}

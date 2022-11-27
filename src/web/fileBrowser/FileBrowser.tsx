@@ -57,7 +57,7 @@ export function FileBrowser(props: {
 
 	const columns = useMemo(() => [
 		{field: 'type', headerName: '', width: 24, renderCell: (params: GridRenderCellParams<string>) => {
-			if(params.row.type === 'parent') return <ArrowBack/>;
+			if(params.row.type === 'AAparent') return <ArrowBack/>;
 			else if(params.row.name === 'masterkey.cryptomator') return <Key/>;
 			else if(params.row.name.endsWith('.c9r')) return <Lock/>;
 			else if(params.row.type === 'd') return <Folder/>;
@@ -70,7 +70,7 @@ export function FileBrowser(props: {
 			getActions: (params: GridRowParams) => {
 				const def = [];
 				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying !== Querying.None}/>);
-				if(params.row.type !== 'parent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying !== Querying.None}/>);
+				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying !== Querying.None}/>);
 				return def;
 			}
 		}
@@ -165,9 +165,9 @@ export function FileBrowser(props: {
 		if(dir.length){
 			rows.push(
 				{
-					id: 'parent',
+					id: 'AAparent',
 					name: 'Up one level',
-					type: 'parent'
+					type: 'AAparent'
 				}
 			);
 		}
@@ -184,7 +184,7 @@ export function FileBrowser(props: {
 
 	const onRowClick = (r: GridRowParams) => {
 		if(sel.length) return;
-		if(r.row.type === 'parent') loadSubDir(null);
+		if(r.row.type === 'AAparent') loadSubDir(null);
 		else if(r.row.type === 'd') loadSubDir(r.row.name);
 	}
 
@@ -237,9 +237,17 @@ export function FileBrowser(props: {
 				</AppBar>
 				<Box m={1} sx={{flex: 1}}>
 					<DataGrid
+						initialState={{
+							sorting: {
+								sortModel: [
+									{field: 'type', sort: 'asc'},
+									{field: 'name', sort: 'desc'}
+								],
+							}
+						}}
 						onRowClick={onRowClick}
 						disableSelectionOnClick
-						isRowSelectable={(params: GridRowParams) => params.row.type !== 'parent'}
+						isRowSelectable={(params: GridRowParams) => params.row.type === 'f'}
 						columns={columns}
 						rows={getRows()}
 						loading={querying === Querying.Full}
