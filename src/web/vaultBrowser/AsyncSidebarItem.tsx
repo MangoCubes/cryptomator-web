@@ -60,8 +60,11 @@ export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<Encry
 	const getInnerItems = () => {
 		if(loadState.state === States.Full){
 			const dirs = loadState.items.filter(i => i.type === 'd') as EncryptedDir[];
+			if(dirs.length === 0) return (
+				<TreeItem nodeId={loadState.id + 'None'} key={loadState.id + 'None'} label='No folders'/>
+			);
 			return dirs.map(d => (
-				<AsyncSidebarItem dir={d} tree={props.tree}/>
+				<AsyncSidebarItem dir={d} key={d.fullName} tree={props.tree}/>
 			));
 		} else return <TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label='Loading...'/>
 	}
@@ -70,7 +73,7 @@ export function AsyncSidebarItem(props: {dir: EncryptedDir, tree: DirCache<Encry
 		<TreeItem nodeId={props.dir.fullName + 'Loading'} key={props.dir.fullName + 'Loading'} label={props.dir.decryptedName}/>
 	);
 	else return (
-		<TreeItem nodeId={loadState.id} key={props.dir.fullName} label={props.dir.decryptedName}>
+		<TreeItem nodeId={loadState.id} key={loadState.id} label={props.dir.decryptedName}>
 			{getInnerItems()}
 		</TreeItem>
 	)
