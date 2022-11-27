@@ -161,28 +161,25 @@ export function FileBrowser(props: {
 	}
 
 	const getRows = () => {
-		if (querying === Querying.Full) return [];
-		else {
-			const rows = [];
-			if(dir.length){
-				rows.push(
-					{
-						id: 'parent',
-						name: 'Up one level',
-						type: 'parent'
-					}
-				);
-			}
-			for(const item of getDirItems()){
-				rows.push({
-					id: item.fullName,
-					name: item.name,
-					type: item.type,
-					obj: item
-				});
-			}
-			return rows;
+		const rows = [];
+		if(dir.length){
+			rows.push(
+				{
+					id: 'parent',
+					name: 'Up one level',
+					type: 'parent'
+				}
+			);
 		}
+		for(const item of getDirItems()){
+			rows.push({
+				id: item.fullName,
+				name: item.name,
+				type: item.type,
+				obj: item
+			});
+		}
+		return rows;
 	}
 
 	const onRowClick = (r: GridRowParams) => {

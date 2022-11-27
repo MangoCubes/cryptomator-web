@@ -156,6 +156,12 @@ export function VaultBrowser(props: {
 		else if(r.row.type === 'd') changeDir(r.row.obj);
 	}
 
+	const reload = async () => {
+		setQuerying(Querying.Full);
+		await loadItems(dir[dir.length - 1]?.id ?? '' as DirID, true);
+		setQuerying(Querying.None);
+	}
+
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
 			<VaultSidebar
@@ -175,7 +181,7 @@ export function VaultBrowser(props: {
 						<Box sx={{flex: 1}}/>
 						<Tooltip title='Refresh'>
 							<span>
-								<IconButton edge='end'>
+								<IconButton edge='end' onClick={reload}>
 									<Refresh/>
 								</IconButton>
 							</span>
