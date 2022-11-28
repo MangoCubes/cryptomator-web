@@ -1,11 +1,12 @@
 import { ArrowBack, Article, Delete, Download, Folder, Refresh } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography, Tooltip, IconButton } from "@mui/material";
+import { Box, AppBar, Toolbar, Tooltip, IconButton } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { SingleLine } from "../styled/SingleLine";
 import { VaultSidebar } from "./VaultSidebar";
 
 enum Querying {
@@ -174,10 +175,10 @@ export function VaultBrowser(props: {
 				loadDir={loadItems}
 				vault={props.vault}
 			/>
-			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
+			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					<Toolbar>
-						<Typography variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</Typography>
+						<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
 						<Box sx={{flex: 1}}/>
 						<Tooltip title='Refresh'>
 							<span>

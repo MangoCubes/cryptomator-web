@@ -1,11 +1,12 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { SingleLine } from "../styled/SingleLine";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
@@ -207,7 +208,7 @@ export function FileBrowser(props: {
 		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying !== Querying.None}/>;
 		else return (
 			<Toolbar>
-				<Typography variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</Typography>
+				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
 				<Box sx={{flex: 1}}/>
 				<Tooltip title='Refresh'>
 					<span>
@@ -231,7 +232,7 @@ export function FileBrowser(props: {
 				setDir={setDir}
 				loadDir={loadItems}
 			/>
-			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1}}>
+			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
 				</AppBar>
@@ -276,7 +277,7 @@ function SelectionToolbar(props: {selected: number, del: () => void, download: (
 
 	return (
 		<Toolbar>
-			<Typography variant='h5'>{`${props.selected} items selected`}</Typography>
+			<SingleLine variant='h5'>{`${props.selected} items selected`}</SingleLine>
 			<Box sx={{flex: 1}}/>
 			<Tooltip title='Download selected'>
 				<span>
