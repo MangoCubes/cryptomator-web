@@ -1,5 +1,5 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem, Link, Breadcrumbs, Typography } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
@@ -221,6 +221,25 @@ export function FileBrowser(props: {
 		);
 	}
 
+	const breadcrumbs = () => {
+		const prev = [
+			dir.length === 0
+			? <Typography color='text.primary'>Root</Typography>
+			: <Link underline='hover' key='root' href='#'>Root</Link>,
+			...dir.slice(0, -1).map((d, i) => (
+				<Link underline='hover' key={i} href='#'>{d}</Link>
+			))			
+		];
+		return (
+			<Box mt={1} ml={1}>
+				<Breadcrumbs>
+					{prev}
+					<Typography color='text.primary'>{dir[dir.length - 1]}</Typography>
+				</Breadcrumbs>
+			</Box>
+		)
+	}
+
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
 			<FileSidebar
@@ -236,6 +255,7 @@ export function FileBrowser(props: {
 				<AppBar position='static'>
 					{toolbar()}
 				</AppBar>
+				{breadcrumbs()}
 				<Box m={1} sx={{flex: 1}}>
 					<DataGrid
 						initialState={{
