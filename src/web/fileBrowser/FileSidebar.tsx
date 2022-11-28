@@ -5,7 +5,7 @@ import { Item, ItemPath } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader, Progress } from "../ItemDownloader";
-import { SingleLine } from "../styled/SingleLine";
+import { SingleLine } from "../shared/SingleLine";
 
 export function FileSidebar(props: {
 	logout: () => void,

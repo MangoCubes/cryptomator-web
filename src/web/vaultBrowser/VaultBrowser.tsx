@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
-import { SingleLine } from "../styled/SingleLine";
+import { SingleLine } from "../shared/SingleLine";
 import { VaultSidebar } from "./VaultSidebar";
 
 enum Querying {

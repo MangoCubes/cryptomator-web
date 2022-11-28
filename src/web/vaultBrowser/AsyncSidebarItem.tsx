@@ -2,7 +2,7 @@ import { TreeItem } from "@mui/lab";
 import { DirID, EncryptedDir, EncryptedItem } from "cryptomator-ts";
 import { useEffect, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";
-import { SingleLine } from "../styled/SingleLine";
+import { SingleLine } from "../shared/SingleLine";
 
 /**
  * This component has these states:
