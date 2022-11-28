@@ -1,5 +1,6 @@
 {
   "name": "cryptomator-web",
+  "homepage": "https://MangoCubes.github.io/cryptomator-web",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -35,6 +36,8 @@
     "webdav": "^4.11.0"
   },
   "scripts": {
+    "predeploy": "yarn run deploy",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -60,6 +63,7 @@
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.5",
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^8.3.4",
+    "gh-pages": "^4.0.0"
   }
 }
