@@ -4,9 +4,9 @@ export function DirBreadcrumbs(props: {dir: string[], cd: (index: number) => voi
 	const prev = [
 		props.dir.length === 0
 		? <Typography color='text.primary' key='Root'>Root</Typography>
-		: <Link underline='hover' key='root' href='#'>Root</Link>,
+		: <Link underline='hover' key='root' href='#' onClick={() => props.cd(0)}>Root</Link>,
 		...props.dir.slice(0, -1).map((d, i) => (
-			<Link underline='hover' key={i} href='#'>{d}</Link>
+			<Link underline='hover' key={i} href='#' onClick={() => props.cd(i + 1)}>{d}</Link>
 		))			
 	];
 	return (

@@ -237,7 +237,7 @@ export function FileBrowser(props: {
 				<AppBar position='static'>
 					{toolbar()}
 				</AppBar>
-				<DirBreadcrumbs dir={dir} cd={(i) => {}}/>
+				<DirBreadcrumbs dir={dir} cd={(i) => setDir(dir.slice(0, i))}/>
 				<Box m={1} sx={{flex: 1}}>
 					<DataGrid
 						initialState={{
