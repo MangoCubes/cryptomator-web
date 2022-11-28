@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { SingleLine } from "../shared/SingleLine";
 import { VaultSidebar } from "./VaultSidebar";
 
@@ -189,6 +190,7 @@ export function VaultBrowser(props: {
 						</Tooltip>
 					</Toolbar>
 				</AppBar>
+				<DirBreadcrumbs dir={dir.map(d => d.name)} cd={(i) => setDir(dir.slice(0, i))}/>
 				<Box m={1} sx={{flex: 1}}>
 					<DataGrid
 						initialState={{
