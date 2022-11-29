@@ -8,19 +8,35 @@ export function AddMenu(props: {
 	createFile: () => void,
 	createFolder: () => void
 }){
+	const createFile = () => {
+		props.createFile();
+		props.onClose();
+	}
+
+	const createFolder = () => {
+		props.createFolder();
+		props.onClose();
+	}
+
+	const createVault = () => {
+		if(!props.createVault) return;
+		props.createVault();
+		props.onClose();
+	}
+	
 	return (
 		<Menu
 			anchorEl={props.anchor}
         	open={props.anchor !== null}
         	onClose={props.onClose}
 		>
-			<MenuItem onClick={props.createFile}>
+			<MenuItem onClick={createFile}>
 				<ListItemIcon>
 					<InsertDriveFile/>
 				</ListItemIcon>
 				<ListItemText>File</ListItemText>
 			</MenuItem>
-			<MenuItem onClick={props.createFolder}>
+			<MenuItem onClick={createFolder}>
 				<ListItemIcon>
 					<CreateNewFolder/>
 				</ListItemIcon>
@@ -29,7 +45,7 @@ export function AddMenu(props: {
 			{
 				props.createVault
 				&& (
-					<MenuItem onClick={props.createVault}>
+					<MenuItem onClick={createVault}>
 						<ListItemIcon>
 							<EnhancedEncryption/>
 						</ListItemIcon>

@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export function FolderDialog(props: {open: boolean, close: () => void, create: (name: string) => Promise<void>}){
 
@@ -7,12 +7,11 @@ export function FolderDialog(props: {open: boolean, close: () => void, create: (
 	const [error, setError] = useState(false);
 	const [querying, setQuerying] = useState(false);
 
-	useEffect(() => {
-		return () => setName('');
-	}, []);
-
 	const onClose = () => {
-		if(!querying) props.close();
+		if(!querying) {
+			props.close();
+			setName('');
+		}
 	}
 
 	const create = async () => {

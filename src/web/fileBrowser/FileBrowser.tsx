@@ -246,6 +246,8 @@ export function FileBrowser(props: {
 
 	const createFolder = async (name: string) => {
 		await props.client.createDir('/' + [...dir, name].join('/'), false);
+		setOpen(Dialog.None);
+		await reload();
 	}
 
 	return (
