@@ -1,4 +1,4 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert } from "@mui/icons-material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert, Add } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
@@ -6,7 +6,9 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { AddMenu } from "../shared/AddMenu";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
+import { FolderDialog } from "../shared/FolderDialog";
 import { SingleLine } from "../shared/SingleLine";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
@@ -26,6 +28,18 @@ enum Querying {
 	Full
 }
 
+enum Dialog {
+	None,
+	// Dialog that unlocks vault
+	Password,
+	// Dialog that shows content of a file, which can also be edited and saved
+	File,
+	// Dialog that asks user for folder name
+	Folder,
+	// Dialog that asks user for password for a new vault
+	Vault
+}
+
 export function FileBrowser(props: {
 	client: WebDAV,
 	setVault: (vault: Vault) => void,
@@ -41,8 +55,9 @@ export function FileBrowser(props: {
 	// setItems should never be used outside saveItems
 	const [items, setItems] = useState<DirCache<Item>>({});
 	const [sel, setSel] = useState<GridSelectionModel>([]);
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
+	const [menu, setMenu] = useState<null | HTMLElement>(null);
 
 	/**
 	 * To handle multiple queries running asynchronously, the following approach is used:
@@ -204,6 +219,10 @@ export function FileBrowser(props: {
 		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1]);
 		return vault;
 	}
+
+	const createFile = async () => {
+
+	}
 	
 	const toolbar = () => {
 		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying !== Querying.None}/>;
@@ -211,6 +230,9 @@ export function FileBrowser(props: {
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
 				<Box sx={{flex: 1}}/>
+				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
+					<Add/>
+				</IconButton>
 				<Tooltip title='Refresh'>
 					<span>
 						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>
@@ -222,8 +244,19 @@ export function FileBrowser(props: {
 		);
 	}
 
+	const createFolder = async (name: string) => {
+		await props.client.createDir('/' + [...dir, name].join('/'), false);
+	}
+
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
+			<AddMenu
+				anchor={menu}
+				onClose={() => setMenu(null)}
+				createFile={() => setOpen(Dialog.File)}
+				createFolder={() => setOpen(Dialog.Folder)}
+				createVault={() => setOpen(Dialog.Vault)}
+			/>
 			<FileSidebar
 				logout={props.logout}
 				downloads={props.downloads}
@@ -233,6 +266,7 @@ export function FileBrowser(props: {
 				setDir={setDir}
 				loadDir={loadItems}
 			/>
+			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
@@ -262,12 +296,12 @@ export function FileBrowser(props: {
 					/>
 				</Box>
 				<Zoom in={showButton()}>
-					<Fab onClick={() => setOpen(true)} variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
+					<Fab onClick={() => setOpen(Dialog.Password)} variant='extended' sx={{position: 'fixed', top: 'auto', left: 'auto', right: 20, bottom: 80}}>
 						<LockOpen/>
 						Unlock
 					</Fab>
 				</Zoom>
-				<VaultDialog open={open} close={() => setOpen(false)} decrypt={decrypt} setVault={props.setVault}/>
+				<VaultDialog open={open === Dialog.Password} close={() => setOpen(Dialog.None)} decrypt={decrypt} setVault={props.setVault}/>
 			</Box>
 		</Box>
 	);

@@ -32,7 +32,7 @@ export function FolderDialog(props: {open: boolean, close: () => void, create: (
 			<DialogTitle>Create new folder</DialogTitle>
 			<DialogContent>
 				<TextField
-					disabled={querying} required variant='standard' label='Name' type='name' value={name} error={error} helperText={error ? 'Cannot create folder.' : ' '}/>
+					disabled={querying} required variant='standard' label='Name' type='name' value={name} error={error} helperText={error ? 'Cannot create folder.' : ' '} onChange={e => setName(e.currentTarget.value)}/>
 			</DialogContent>
 			<DialogActions>
 				<Button disabled={querying} onClick={props.close}>Cancel</Button>

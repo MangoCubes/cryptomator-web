@@ -62,8 +62,10 @@ export class WebDAV implements DataProvider{
 	writeFile(path: string, content: string | Uint8Array): Promise<void> {
 		throw new Error("Not implemented");
 	}
-	createDir(path: string, recursive?: boolean | undefined): Promise<void> {
-		throw new Error("Not implemented");
+	async createDir(path: string, recursive?: boolean | undefined): Promise<void> {
+		await this.client.createDirectory(path, {
+			recursive: recursive
+		});
 	}
 	async removeFile(path: string): Promise<void> {
 		await this.client.deleteFile(path);
