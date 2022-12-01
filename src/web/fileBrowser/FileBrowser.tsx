@@ -38,9 +38,9 @@ enum Dialog {
 	// Dialog that asks user for folder name
 	Folder,
 	// Dialog that asks user for password for a new vault
-	Vault
-
-	// Dialog for confirming delete is shown iff there are any elements in itemsToDelete array.
+	Vault,
+	//Dialog that asks user for confirming delete operation
+	DelConfirm
 }
 
 export function FileBrowser(props: {
@@ -91,7 +91,17 @@ export function FileBrowser(props: {
 			getActions: (params: GridRowParams) => {
 				const def = [];
 				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying !== Querying.None}/>);
-				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => setDelTargets([params.row.obj])} showInMenu disabled={querying !== Querying.None}/>);
+				if(params.row.type !== 'AAparent') def.push(
+					<GridActionsCellItem
+						icon={<Delete/>}
+						label='Delete'
+						onClick={() => {
+							setDelTargets([params.row.obj]);
+							setOpen(Dialog.DelConfirm);
+						}}
+						showInMenu disabled={querying !== Querying.None}
+					/>
+				);
 				return def;
 			}
 		}
@@ -168,9 +178,8 @@ export function FileBrowser(props: {
 		setQuerying(Querying.Partial);
 		const tasks: Promise<void>[] = [];
 		for(const t of delTargets) tasks.push(delItem(t));
-		setDelTargets([]);
-		await Promise.all(tasks);
 		setOpen(Dialog.None);
+		await Promise.all(tasks);
 		setQuerying(Querying.None);
 		await reload();
 	}
@@ -229,7 +238,16 @@ export function FileBrowser(props: {
 	}
 	
 	const toolbar = () => {
-		if(sel.length) return <SelectionToolbar selected={sel.length} del={() => setDelTargets(getSelectedItems())} download={downloadSelected} disabled={querying !== Querying.None}/>;
+		if(sel.length) return (
+			<SelectionToolbar
+			selected={sel.length}
+			del={() => {
+				setDelTargets(getSelectedItems());
+				setOpen(Dialog.DelConfirm);
+			}}
+			download={downloadSelected}
+			disabled={querying !== Querying.None}
+		/>);
 		else return (
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
@@ -273,7 +291,12 @@ export function FileBrowser(props: {
 				loadDir={loadItems}
 			/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
-			<DeleteDialog open={delTargets.length !== 0} close={() => setDelTargets([])} del={delSelected} targets={delTargets}/>
+			<DeleteDialog
+				open={open === Dialog.DelConfirm}
+				close={() => setOpen(Dialog.None)}
+				del={delSelected}
+				targets={delTargets}
+			/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
