@@ -1,5 +1,5 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, MoreVert, Add } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Menu, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add } from "@mui/icons-material";
+import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
@@ -10,6 +10,7 @@ import { AddMenu } from "../shared/AddMenu";
 import { DeleteDialog } from "../shared/DeleteDialog";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { FolderDialog } from "../shared/FolderDialog";
+import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
@@ -240,14 +241,15 @@ export function FileBrowser(props: {
 	const toolbar = () => {
 		if(sel.length) return (
 			<SelectionToolbar
-			selected={sel.length}
-			del={() => {
-				setDelTargets(getSelectedItems());
-				setOpen(Dialog.DelConfirm);
-			}}
-			download={downloadSelected}
-			disabled={querying !== Querying.None}
-		/>);
+				selected={sel.length}
+				del={() => {
+					setDelTargets(getSelectedItems());
+					setOpen(Dialog.DelConfirm);
+				}}
+				download={downloadSelected}
+				disabled={querying !== Querying.None}
+			/>
+		);
 		else return (
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
@@ -335,34 +337,4 @@ export function FileBrowser(props: {
 			</Box>
 		</Box>
 	);
-}
-
-function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, disabled: boolean}){
-
-	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
-
-	return (
-		<Toolbar>
-			<SingleLine variant='h5'>{`${props.selected} items selected`}</SingleLine>
-			<Box sx={{flex: 1}}/>
-			<Tooltip title='Download selected'>
-				<span>
-					<IconButton onClick={props.download} disabled={props.disabled}>
-						<Download/>
-					</IconButton>
-				</span>
-			</Tooltip>
-			<IconButton onClick={(e) => setAnchor(e.currentTarget)} disabled={props.disabled}>
-				<MoreVert/>
-			</IconButton>
-			<Menu anchorEl={anchor} open={anchor !== null} onClose={() => setAnchor(null)}>
-				<MenuItem onClick={() => props.del()}>
-					<ListItemIcon>
-						<Delete/>
-					</ListItemIcon>
-					<ListItemText>Delete selected</ListItemText>
-				</MenuItem>
-			</Menu>
-		</Toolbar>
-	)
 }

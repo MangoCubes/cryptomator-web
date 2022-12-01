@@ -7,6 +7,7 @@ import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
+import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
 import { VaultSidebar } from "./VaultSidebar";
 
@@ -75,7 +76,14 @@ export function VaultBrowser(props: {
 
 	useEffect(() => {
 		loadItems('' as DirID, true);
-	}, [])
+	}, []);
+
+	const getDirItems = () => {
+		const currentDirId = dir.length === 0 ? '' as DirID : dir[dir.length - 1].id;
+		const currentItems = items[currentDirId];
+		if(currentItems?.explored !== ExpStatus.Ready) return [];
+		else return currentItems.child;
+	}
 
 	const rows = useMemo(() => {
 		const rows = [];
@@ -88,10 +96,8 @@ export function VaultBrowser(props: {
 				}
 			);
 		}
-		const currentDirId = dir.length === 0 ? '' as DirID : dir[dir.length - 1].id;
-		const currentItems = items[currentDirId];
-		if(currentItems?.explored !== ExpStatus.Ready) return [];
-		for(const item of currentItems.child){
+		
+		for(const item of getDirItems()){
 			rows.push({
 				id: item.fullName,
 				name: item.decryptedName,
@@ -164,6 +170,36 @@ export function VaultBrowser(props: {
 		setQuerying(Querying.None);
 	}
 
+	const getSelectedItems = () => {
+		const targets = [];
+		for(const item of getDirItems()) if(sel.includes(item.fullName)) targets.push(item);
+		return targets;
+	}
+
+	const getToolbar = () => {
+		if(sel.length) return (
+			<SelectionToolbar
+				selected={sel.length}
+				del={function (): void {
+				throw new Error("Function not implemented.");
+			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying !== Querying.None}
+			/>
+		);
+		else return (
+			<Toolbar>
+				<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
+				<Box sx={{flex: 1}}/>
+				<Tooltip title='Refresh'>
+					<span>
+						<IconButton edge='end' onClick={reload}>
+							<Refresh/>
+						</IconButton>
+					</span>
+				</Tooltip>
+			</Toolbar>
+		)
+	}
+
 	return (
 		<Box sx={{display: 'flex', width: '100vw', height: '100vh'}}>
 			<VaultSidebar
@@ -178,17 +214,7 @@ export function VaultBrowser(props: {
 			/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
-					<Toolbar>
-						<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
-						<Box sx={{flex: 1}}/>
-						<Tooltip title='Refresh'>
-							<span>
-								<IconButton edge='end' onClick={reload}>
-									<Refresh/>
-								</IconButton>
-							</span>
-						</Tooltip>
-					</Toolbar>
+					{getToolbar()}
 				</AppBar>
 				<DirBreadcrumbs dir={dir.map(d => d.name)} cd={(i) => setDir(dir.slice(0, i))}/>
 				<Box m={1} sx={{flex: 1}}>
@@ -216,5 +242,5 @@ export function VaultBrowser(props: {
 				</Box>
 			</Box>
 		</Box>
-	)
+	);
 }
