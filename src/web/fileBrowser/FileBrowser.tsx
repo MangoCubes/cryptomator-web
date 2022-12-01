@@ -1,4 +1,4 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add } from "@mui/icons-material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
 import { Item, ItemPath, Vault } from "cryptomator-ts";
@@ -12,6 +12,7 @@ import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
+import { UploadDialog } from "../shared/UploadDialog";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
@@ -41,7 +42,9 @@ enum Dialog {
 	// Dialog that asks user for password for a new vault
 	Vault,
 	//Dialog that asks user for confirming delete operation
-	DelConfirm
+	DelConfirm,
+	// Dialog that asks user for files to upload
+	Upload
 }
 
 export function FileBrowser(props: {
@@ -254,6 +257,9 @@ export function FileBrowser(props: {
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
 				<Box sx={{flex: 1}}/>
+				<IconButton disabled={querying !== Querying.None} onClick={e => setOpen(Dialog.Upload)}>
+					<Upload/>
+				</IconButton>
 				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
@@ -299,6 +305,7 @@ export function FileBrowser(props: {
 				del={delSelected}
 				targets={delTargets}
 			/>
+			<UploadDialog open={open === Dialog.Upload} close={() => setOpen(Dialog.None)}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
