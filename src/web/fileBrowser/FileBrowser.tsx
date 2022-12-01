@@ -7,6 +7,7 @@ import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
 import { AddMenu } from "../shared/AddMenu";
+import { DeleteDialog } from "../shared/DeleteDialog";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { FolderDialog } from "../shared/FolderDialog";
 import { SingleLine } from "../shared/SingleLine";
@@ -38,6 +39,8 @@ enum Dialog {
 	Folder,
 	// Dialog that asks user for password for a new vault
 	Vault
+
+	// Dialog for confirming delete is shown iff there are any elements in itemsToDelete array.
 }
 
 export function FileBrowser(props: {
@@ -58,6 +61,7 @@ export function FileBrowser(props: {
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
+	const [delTargets, setDelTargets] = useState<Item[]>([]);
 
 	/**
 	 * To handle multiple queries running asynchronously, the following approach is used:
@@ -87,7 +91,7 @@ export function FileBrowser(props: {
 			getActions: (params: GridRowParams) => {
 				const def = [];
 				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} onClick={() => props.download([params.row.obj])} label='Download' disabled={querying !== Querying.None}/>);
-				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => onDelete(params.row.obj)} showInMenu disabled={querying !== Querying.None}/>);
+				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} label='Delete' onClick={() => setDelTargets([params.row.obj])} showInMenu disabled={querying !== Querying.None}/>);
 				return def;
 			}
 		}
@@ -143,10 +147,7 @@ export function FileBrowser(props: {
 		setQuerying(Querying.None);
 	}
 	
-	const delItems = async (item: Item) => {
-		if(item.type === 'f') await props.client.removeFile(item.fullName);
-		else await props.client.removeDir(item.fullName);
-	}
+	
 
 	const getSelectedItems = () => {
 		const targets = [];
@@ -158,15 +159,18 @@ export function FileBrowser(props: {
 		props.download(getSelectedItems());
 	}
 
-	const onDelete = async (item?: Item) => {
+	const delItem = async (item: Item) => {
+		if(item.type === 'f') await props.client.removeFile(item.fullName);
+		else await props.client.removeDir(item.fullName);
+	}
+
+	const delSelected = async () => {
 		setQuerying(Querying.Partial);
-		if(item) await delItems(item);
-		else {
-			const targets = getSelectedItems();
-			const tasks: Promise<void>[] = [];
-			for(const t of targets) tasks.push(delItems(t));
-			await Promise.all(tasks);
-		}
+		const tasks: Promise<void>[] = [];
+		for(const t of delTargets) tasks.push(delItem(t));
+		setDelTargets([]);
+		await Promise.all(tasks);
+		setOpen(Dialog.None);
 		setQuerying(Querying.None);
 		await reload();
 	}
@@ -225,7 +229,7 @@ export function FileBrowser(props: {
 	}
 	
 	const toolbar = () => {
-		if(sel.length) return <SelectionToolbar selected={sel.length} del={onDelete} download={downloadSelected} disabled={querying !== Querying.None}/>;
+		if(sel.length) return <SelectionToolbar selected={sel.length} del={() => setDelTargets(getSelectedItems())} download={downloadSelected} disabled={querying !== Querying.None}/>;
 		else return (
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
@@ -269,6 +273,7 @@ export function FileBrowser(props: {
 				loadDir={loadItems}
 			/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
+			<DeleteDialog open={delTargets.length !== 0} close={() => setDelTargets([])} del={delSelected} targets={delTargets}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
