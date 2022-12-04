@@ -232,8 +232,8 @@ export function FileBrowser(props: {
 		return count === 3;
 	}
 
-	const decrypt = async (password: string) => {
-		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1]);
+	const decrypt = async (password: string, onKeyLoad: () => void) => {
+		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1], {onKeyLoad: onKeyLoad});
 		return vault;
 	}
 
