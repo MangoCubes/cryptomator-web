@@ -19,7 +19,7 @@
     "@types/node": "^16.11.64",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
-    "base32-encode": "^2.0.0",
+    "base32-encode": "^1.2.0",
     "base64-js": "^1.5.1",
     "cryptomator-ts": "link:../cryptomator-ts",
     "file-saver": "^2.0.5",

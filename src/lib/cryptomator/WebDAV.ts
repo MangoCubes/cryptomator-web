@@ -1,5 +1,5 @@
 import { createClient, FileStat, WebDAVClient } from "webdav";
-import { DataProvider, Item, ItemPath } from "cryptomator-ts";
+import { DataProvider, Item, ItemPath, ProgressCallback } from "cryptomator-ts";
 /**
  * \(([^\)]+)\) => ([^;]+);
  * ($1): $2 {
@@ -16,8 +16,10 @@ export class WebDAV implements DataProvider{
 			password: password
 		});
 	}
-	async readFileString(path: string): Promise<string> {
-		let res = await this.client.getFileContents(path);
+	async readFileString(path: string, progress?: ProgressCallback): Promise<string> {
+		let res = await this.client.getFileContents(path, {
+			onDownloadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
+		});
 		if(typeof(res) !== 'string' && 'data' in res) res = res.data;
 		if(typeof(res) === 'string') return res;
 		else {
@@ -49,8 +51,10 @@ export class WebDAV implements DataProvider{
 		}
 		return itemList;
 	}
-	async readFile(path: string): Promise<Uint8Array> {
-		let res = await this.client.getFileContents(path);
+	async readFile(path: string, progress?: ProgressCallback): Promise<Uint8Array> {
+		let res = await this.client.getFileContents(path, {
+			onDownloadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
+		});
 		if(typeof(res) !== 'string' && 'data' in res) res = res.data;
 		if(typeof(res) === 'string') return new TextEncoder().encode(res)
 		else {
@@ -59,8 +63,10 @@ export class WebDAV implements DataProvider{
 		}
 	}
 
-	writeFile(path: string, content: string | Uint8Array): Promise<void> {
-		throw new Error("Not implemented");
+	async writeFile(path: string, content: string | Uint8Array, progress?: ProgressCallback): Promise<void> {
+		await this.client.putFileContents(path, content, {
+			onUploadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
+		});
 	}
 	async createDir(path: string, recursive?: boolean | undefined): Promise<void> {
 		await this.client.createDirectory(path, {
