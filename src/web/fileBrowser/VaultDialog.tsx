@@ -1,8 +1,9 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
 import { DecryptionError, Vault } from "cryptomator-ts";
 import { ChangeEvent, useEffect, useState } from "react";
+import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
-export function VaultDialog(props: {open: boolean, close: () => void, decrypt: (password: string, onKeyLoad: () => void) => Promise<Vault>, setVault: (vault: Vault) => void}){
+export function VaultDialog(props: {open: boolean, close: () => void, dir: string[], client: WebDAV, setVault: (vault: Vault) => void}){
 
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState(false);
@@ -10,8 +11,8 @@ export function VaultDialog(props: {open: boolean, close: () => void, decrypt: (
 	const [help, setHelp] = useState(' ');
 
 	useEffect(() => {
-		return () => setPassword('');
-	}, []);
+		setPassword('');
+	}, [props.open]);
 
 	const onClose = () => {
 		if(!querying) {
@@ -27,8 +28,15 @@ export function VaultDialog(props: {open: boolean, close: () => void, decrypt: (
 			setQuerying(true);
 			setError(false);
 			setHelp('Fetching vault configs...');
-			const vault = await props.decrypt(password, () => setHelp('Decrypting...'));
-			props.setVault(vault);
+			props.setVault(await Vault.open(
+				props.client,
+				'/' + props.dir.join('/'),
+				password,
+				props.dir[props.dir.length - 1],
+				{
+					onKeyLoad: () => setHelp('Decrypting...')
+				}
+			));
 		} catch (e) {
 			if(e instanceof DecryptionError) {
 				setError(true);

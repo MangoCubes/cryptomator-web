@@ -230,12 +230,7 @@ export function FileBrowser(props: {
 			else if(i.type === 'd' && i.name === 'd') count++;
 		}
 		return count === 3;
-	}
-
-	const decrypt = async (password: string, onKeyLoad: () => void) => {
-		const vault = await Vault.open(props.client, '/' + dir.join('/'), password, dir[dir.length - 1], {onKeyLoad: onKeyLoad});
-		return vault;
-	}
+	}	
 
 	const createFile = async () => {
 
@@ -340,7 +335,7 @@ export function FileBrowser(props: {
 						Unlock
 					</Fab>
 				</Zoom>
-				<VaultDialog open={open === Dialog.Password} close={() => setOpen(Dialog.None)} decrypt={decrypt} setVault={props.setVault}/>
+				<VaultDialog open={open === Dialog.Password} close={() => setOpen(Dialog.None)} dir={dir} client={props.client} setVault={props.setVault}/>
 			</Box>
 		</Box>
 	);
