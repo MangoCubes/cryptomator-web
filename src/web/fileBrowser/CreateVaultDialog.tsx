@@ -1,6 +1,6 @@
 import { Help } from "@mui/icons-material";
 import { Dialog, Box, DialogTitle, DialogContent, TextField, DialogActions, Button, Checkbox, FormControlLabel, DialogContentText, Stack, Tooltip, Typography } from "@mui/material";
-import { Vault } from "cryptomator-ts";
+import { ExistsError, Vault } from "cryptomator-ts";
 import { useState, useEffect, FormEvent } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
@@ -9,13 +9,13 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 	const [name, setName] = useState('');
 	const [password, setPassword] = useState('');
 	const [cvh, setCvh] = useState(false);
-	const [error, setError] = useState(false);
+	const [error, setError] = useState(' ');
 	const [querying, setQuerying] = useState(false);
 
 	useEffect(() => {
 		setName('');
 		setPassword('');
-		setError(false);
+		setError(' ');
 		setCvh(false);
 	}, [props.open])
 
@@ -25,6 +25,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 
 	const create = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		setError(' ');
 		try {
 			setQuerying(true);
 			const vault = await Vault.create(props.client, '/' + props.dir.join('/'), password, 
@@ -38,7 +39,8 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 			props.setVault(vault);
 			props.close();
 		} catch (e) {
-			setError(true);
+			if(e instanceof ExistsError) setError(`The following items could not be created: ${e.which}`);
+			else setError('Unknown error.');
 		} finally {
 			setQuerying(false);
 		}
@@ -56,8 +58,8 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 								variant='standard'
 								label='Name'
 								value={name}
-								error={error}
-								helperText={error ? 'Cannot create vault due to duplicate items.' : ' '}
+								error={error !== ' '}
+								helperText={error}
 								onChange={e => setName(e.currentTarget.value)}
 							/>
 						}

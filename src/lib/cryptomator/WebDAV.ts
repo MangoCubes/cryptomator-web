@@ -16,6 +16,10 @@ export class WebDAV implements DataProvider{
 			password: password
 		});
 	}
+	async exists(path: string){
+		return await this.client.exists(path);
+	}
+	
 	async readFileString(path: string, progress?: ProgressCallback): Promise<string> {
 		let res = await this.client.getFileContents(path, {
 			onDownloadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
@@ -65,6 +69,7 @@ export class WebDAV implements DataProvider{
 
 	async writeFile(path: string, content: string | Uint8Array, progress?: ProgressCallback): Promise<void> {
 		await this.client.putFileContents(path, content, {
+			overwrite: false,
 			onUploadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
 		});
 	}
