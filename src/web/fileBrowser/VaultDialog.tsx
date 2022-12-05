@@ -32,7 +32,7 @@ export function VaultDialog(props: {open: boolean, close: () => void, dir: strin
 				props.client,
 				'/' + props.dir.join('/'),
 				password,
-				props.dir[props.dir.length - 1],
+				props.dir[props.dir.length - 1] ?? 'Root',
 				{
 					onKeyLoad: () => setHelp('Decrypting...')
 				}

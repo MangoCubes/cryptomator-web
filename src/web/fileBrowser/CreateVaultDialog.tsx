@@ -9,14 +9,14 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 	const [name, setName] = useState('');
 	const [password, setPassword] = useState('');
 	const [cvh, setCvh] = useState(false);
-	const [error, setError] = useState(' ');
+	const [error, setError] = useState(false);
 	const [status, setStatus] = useState('');
 	const [querying, setQuerying] = useState(false);
 
 	useEffect(() => {
 		setName('');
 		setPassword('');
-		setError(' ');
+		setError(false);
 		setCvh(false);
 		setStatus('');
 	}, [props.open])
@@ -34,7 +34,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 
 	const create = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setError(' ');
+		setError(false);
 		try {
 			setQuerying(true);
 			const vault = await Vault.create(props.client, '/' + props.dir.join('/'), password, 
@@ -49,8 +49,9 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 			props.setVault(vault);
 			props.close();
 		} catch (e) {
-			if(e instanceof ExistsError) setError(`The following items could not be created: ${e.which}`);
-			else setError('Unknown error.');
+			if(e instanceof ExistsError) setStatus(`The following items could not be created: ${e.which}`);
+			else setStatus('Unknown error.');
+			setError(true);
 		} finally {
 			setQuerying(false);
 		}
@@ -68,8 +69,6 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 								variant='standard'
 								label='Name'
 								value={name}
-								error={error !== ' '}
-								helperText={error}
 								onChange={e => setName(e.currentTarget.value)}
 							/>
 						}
@@ -96,7 +95,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 							value={password}
 							onChange={e => setPassword(e.currentTarget.value)}
 						/>
-						<DialogContentText>{status}</DialogContentText>
+						<DialogContentText color={error ? 'error' : undefined}>{status}</DialogContentText>
 					</Stack>
 				</DialogContent>
 				<DialogActions>
