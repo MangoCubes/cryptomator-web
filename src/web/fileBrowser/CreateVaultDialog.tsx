@@ -1,4 +1,5 @@
-import { Dialog, Box, DialogTitle, DialogContent, TextField, DialogActions, Button, Checkbox, FormControlLabel } from "@mui/material";
+import { Help } from "@mui/icons-material";
+import { Dialog, Box, DialogTitle, DialogContent, TextField, DialogActions, Button, Checkbox, FormControlLabel, DialogContentText, Stack, Tooltip, Typography } from "@mui/material";
 import { Vault } from "cryptomator-ts";
 import { useState, useEffect, FormEvent } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
@@ -26,7 +27,15 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 		e.preventDefault();
 		try {
 			setQuerying(true);
-			
+			const vault = await Vault.create(props.client, '/' + props.dir.join('/'), password, 
+				cvh ? {
+					name: null,
+					createHere: true
+				} : {
+					name: name
+				}
+			)
+			props.setVault(vault);
 			props.close();
 		} catch (e) {
 			setError(true);
@@ -40,30 +49,41 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 			<Box component='form' onSubmit={create}>
 				<DialogTitle>Create new vault</DialogTitle>
 				<DialogContent>
-					<TextField
-						disabled={querying || cvh}
-						variant='standard'
-						label='Name'
-						value={name}
-						error={error}
-						helperText={error ? 'Cannot create vault due to duplicate items.' : ' '}
-						onChange={e => setName(e.currentTarget.value)}
-					/>
-					<FormControlLabel control={
-						<Checkbox
-							checked={cvh}
-							onChange={e => setCvh(e.target.checked)}
+					<Stack spacing={1}>
+						{
+							!cvh && <TextField
+								disabled={querying || cvh}
+								variant='standard'
+								label='Name'
+								value={name}
+								error={error}
+								helperText={error ? 'Cannot create vault due to duplicate items.' : ' '}
+								onChange={e => setName(e.currentTarget.value)}
+							/>
+						}
+						<FormControlLabel control={
+							<Checkbox
+								checked={cvh}
+								onChange={e => setCvh(e.target.checked)}
+							/>
+						} label={
+							<Stack spacing={1} direction='row'>
+								<Typography>Create vault here</Typography>
+								<Tooltip title='All files that make up Cryptomator vault (.cryptomator files, "d" folder) will be created in the current directory instead of creating a directory, and putting contents in it.'>
+									<Help/>
+								</Tooltip>
+							</Stack>
+						} />
+						<TextField
+							disabled={querying}
+							required
+							variant='standard'
+							label='Password'
+							type='password'
+							value={password}
+							onChange={e => setPassword(e.currentTarget.value)}
 						/>
-					} label='Create vault here' />
-					<TextField
-						disabled={querying}
-						required
-						variant='standard'
-						label='Password'
-						type='password'
-						value={password}
-						onChange={e => setPassword(e.currentTarget.value)}
-					/>
+					</Stack>
 				</DialogContent>
 				<DialogActions>
 					<Button disabled={querying} onClick={props.close}>Cancel</Button>

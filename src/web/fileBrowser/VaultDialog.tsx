@@ -63,5 +63,5 @@ export function VaultDialog(props: {open: boolean, close: () => void, dir: strin
 				<Button disabled={password === '' || querying} onClick={decrypt}>Decrypt</Button>
 			</DialogActions>
 		</Dialog>
-	)
+	);
 }

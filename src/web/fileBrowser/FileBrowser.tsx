@@ -13,6 +13,7 @@ import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
 import { UploadDialog } from "../shared/UploadDialog";
+import { CreateVaultDialog } from "./CreateVaultDialog";
 import { FileSidebar } from "./FileSidebar";
 import { VaultDialog } from "./VaultDialog";
 
@@ -293,6 +294,7 @@ export function FileBrowser(props: {
 				setDir={setDir}
 				loadDir={loadItems}
 			/>
+			<CreateVaultDialog open={open === Dialog.Vault} close={() => setOpen(Dialog.None)} dir={dir} client={props.client} setVault={props.setVault}/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
 			<DeleteDialog
 				open={open === Dialog.DelConfirm}
