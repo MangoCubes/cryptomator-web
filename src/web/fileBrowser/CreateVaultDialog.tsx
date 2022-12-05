@@ -1,6 +1,6 @@
 import { Help } from "@mui/icons-material";
 import { Dialog, Box, DialogTitle, DialogContent, TextField, DialogActions, Button, Checkbox, FormControlLabel, DialogContentText, Stack, Tooltip, Typography } from "@mui/material";
-import { ExistsError, Vault } from "cryptomator-ts";
+import { CreationStep, ExistsError, Vault } from "cryptomator-ts";
 import { useState, useEffect, FormEvent } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
@@ -10,6 +10,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 	const [password, setPassword] = useState('');
 	const [cvh, setCvh] = useState(false);
 	const [error, setError] = useState(' ');
+	const [status, setStatus] = useState('');
 	const [querying, setQuerying] = useState(false);
 
 	useEffect(() => {
@@ -17,10 +18,18 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 		setPassword('');
 		setError(' ');
 		setCvh(false);
+		setStatus('');
 	}, [props.open])
 
 	const onClose = () => {
 		if(!querying) props.close();
+	}
+
+	const statusUpdate = (step: CreationStep) => {
+		if(step === CreationStep.CreatingFiles) setStatus('Creating vault key files...');
+		if(step === CreationStep.CreatingRoot) setStatus('Creating root folder of the vault...');
+		if(step === CreationStep.DupeCheck) setStatus('Checking if vault can be created here...');
+		if(step === CreationStep.KeyGen) setStatus('Generating keys...');
 	}
 
 	const create = async (e: FormEvent<HTMLFormElement>) => {
@@ -34,7 +43,8 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 					createHere: true
 				} : {
 					name: name
-				}
+				},
+				statusUpdate
 			)
 			props.setVault(vault);
 			props.close();
@@ -65,6 +75,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 						}
 						<FormControlLabel control={
 							<Checkbox
+								disabled={querying}
 								checked={cvh}
 								onChange={e => setCvh(e.target.checked)}
 							/>
@@ -85,6 +96,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 							value={password}
 							onChange={e => setPassword(e.currentTarget.value)}
 						/>
+						<DialogContentText>{status}</DialogContentText>
 					</Stack>
 				</DialogContent>
 				<DialogActions>
