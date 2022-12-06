@@ -22,15 +22,25 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 	}
 
 	const onDrop = useCallback((acceptedFiles: File[]) => {
-		acceptedFiles.forEach((file) => {
+		const newFiles: FileData[] = [];
+		let counter = 0;
+		for(const f of acceptedFiles){
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				const res = reader.result;
-				if(!res || typeof(res) === 'string') return;
-				setFiles([...files, {data: new Uint8Array(res), name: file.name}]);
+				if(res && typeof(res) !== 'string') newFiles.push({
+					name: f.name,
+					data: new Uint8Array(res)
+				});
+				counter++;
+				if(counter === acceptedFiles.length) setFiles([...files, ...newFiles]);
 			}
-			reader.readAsArrayBuffer(file);
-		});
+			reader.readAsArrayBuffer(f);
+		}
+	}, [files]);
+
+	useEffect(() => {
+		setFiles([]);
 	}, []);
 
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
@@ -39,7 +49,7 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 		<Dialog open={props.open} onClose={onClose}>
 			<DialogTitle>Upload files</DialogTitle>
 			<DialogContent>
-				<Box sx={{width: '30vw', height: '30vh'}} {...getRootProps()}>
+				<Box sx={{width: '30vw', minHeight: '30vh'}} {...getRootProps()}>
 					<input {...getInputProps()}/>
 					{
 						files.length === 0
