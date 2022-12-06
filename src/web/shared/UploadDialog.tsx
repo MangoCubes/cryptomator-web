@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from 'react-dropzone';
 
 
@@ -22,7 +22,15 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 	}
 
 	const onDrop = useCallback((acceptedFiles: File[]) => {
-		console.log(acceptedFiles);
+		acceptedFiles.forEach((file) => {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				const res = reader.result;
+				if(!res || typeof(res) === 'string') return;
+				setFiles([...files, {data: new Uint8Array(res), name: file.name}]);
+			}
+			reader.readAsArrayBuffer(file);
+		});
 	}, []);
 
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
