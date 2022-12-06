@@ -17,11 +17,13 @@ export function MainScreen(){
 
 	const [client, setClient] = useState<null | WebDAV>(null);
 	const [vault, setVault] = useState<Vault | null>(null);
-	const [downloads, setDownloads] = useState<Item[]>([]);
+	const [downloads, setDownloads] = useState<{[key: ItemPath]: Item}>({});
 	const [open, setOpen] = useState(false);
 
 	const startDownload = (items: Item[]) => {
-		setDownloads([...downloads, ...items]);
+		const copy = {...downloads};
+		for(const i of items) copy[i.fullName] = i;
+		setDownloads(copy);
 	}
 
 	if(client){

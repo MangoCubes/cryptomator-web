@@ -1,13 +1,13 @@
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List } from "@mui/material";
-import { Item } from "cryptomator-ts";
+import { Item, ItemPath } from "cryptomator-ts";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { ItemDownload } from "./ItemDownload";
 
-export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose: () => void, downloads: Item[]}){
+export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose: () => void, downloads: {[key: ItemPath]: Item}}){
 
 	const genList = () => {
 		const listItems = [];
-		for(const item of props.downloads) listItems.push(<ItemDownload item={item} key={item.fullName} client={props.client}/>);
+		for(const k in props.downloads) listItems.push(<ItemDownload item={props.downloads[k as ItemPath]} key={k} client={props.client}/>);
 		return listItems;
 	}
 

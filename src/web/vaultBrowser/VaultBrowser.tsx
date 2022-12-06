@@ -42,7 +42,7 @@ export function VaultBrowser(props: {
 	vault: Vault,
 	client: WebDAV,
 	download: (item: EncryptedItem[], vault: Vault) => void,
-	downloads: Item[],
+	downloads: {[key: ItemPath]: Item},
 	lock: () => void,
 	openDownloads: () => void
 }){

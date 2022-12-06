@@ -52,7 +52,7 @@ export function FileBrowser(props: {
 	setVault: (vault: Vault) => void,
 	download: (item: Item[]) => void,
 	logout: () => void,
-	downloads: Item[],
+	downloads: {[key: ItemPath]: Item},
 	openDownloads: () => void
 }){
 

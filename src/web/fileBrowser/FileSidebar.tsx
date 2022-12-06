@@ -8,7 +8,7 @@ import { SingleLine } from "../shared/SingleLine";
 
 export function FileSidebar(props: {
 	logout: () => void,
-	downloads: Item[],
+	downloads: {[key: ItemPath]: Item},
 	openDownloads: () => void,
 	tree: DirCache<Item>,
 	dir: string[],
@@ -77,7 +77,7 @@ export function FileSidebar(props: {
 			<List sx={{ maxWidth: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
-						<Badge badgeContent={props.downloads.length} color='primary'>
+						<Badge badgeContent={Object.keys(props.downloads).length} color='primary'>
 							<Download/>
 						</Badge>
 					</ListItemIcon>

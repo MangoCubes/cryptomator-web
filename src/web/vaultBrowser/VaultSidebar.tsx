@@ -10,7 +10,7 @@ import { AsyncSidebarItem } from "./AsyncSidebarItem";
 export function VaultSidebar(props: {
 	vault: Vault,
 	lock: () => void,
-	downloads: Item[],
+	downloads: {[key: ItemPath]: Item},
 	openDownloads: () => void,
 	tree: DirCache<EncryptedItem>,
 	dir: DirInfo[],
@@ -74,7 +74,7 @@ export function VaultSidebar(props: {
 			<List sx={{ maxWidth: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
-						<Badge badgeContent={props.downloads.length} color='primary'>
+						<Badge badgeContent={Object.keys(props.downloads).length} color='primary'>
 							<Download/>
 						</Badge>
 					</ListItemIcon>
