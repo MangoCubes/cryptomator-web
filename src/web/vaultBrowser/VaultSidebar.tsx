@@ -1,7 +1,6 @@
 import { ChevronRight, Download, ExpandMore, Lock } from "@mui/icons-material";
 import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
-import { ItemDownloader, Progress } from "../ItemDownloader";
+import { DirID, EncryptedDir, EncryptedItem, Item, ItemPath, Vault } from "cryptomator-ts";
 import { DirCache, ExpStatus } from "../../types/types";
 import { DirInfo } from "./VaultBrowser";
 import { TreeItem, TreeView } from "@mui/lab";
@@ -11,7 +10,7 @@ import { AsyncSidebarItem } from "./AsyncSidebarItem";
 export function VaultSidebar(props: {
 	vault: Vault,
 	lock: () => void,
-	downloads: {[path: ItemPath]: ItemDownloader},
+	downloads: Item[],
 	openDownloads: () => void,
 	tree: DirCache<EncryptedItem>,
 	dir: DirInfo[],
@@ -22,29 +21,6 @@ export function VaultSidebar(props: {
 	const drawer = 240;
 
 	const [expanded, setExpanded] = useState<string[]>([]);
-
-	const getMessage = () => {
-		let done = 0;
-		let inProgress = 0;
-		for(const k in props.downloads){
-			const item = props.downloads[k as ItemPath];
-			if(item.progress.current === Progress.Done) done++;
-			else if(item.progress.current === Progress.Running) inProgress++;
-		}
-		const res = [];
-		if(inProgress !== 0) res.push(`${inProgress} in progress`);
-		if(done !== 0) res.push(`${done} completed`);
-		return res.join(', ');
-	}
-
-	const getCount = () => {
-		let inProgress = 0;
-		for(const k in props.downloads){
-			const item = props.downloads[k as ItemPath];
-			if(item.progress.current === Progress.Running) inProgress++;
-		}
-		return inProgress;
-	}
 
 	const getTreeItems = () => {
 		const subDir = props.tree[''];
@@ -98,11 +74,11 @@ export function VaultSidebar(props: {
 			<List sx={{ maxWidth: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
-						<Badge badgeContent={getCount()} color='primary'>
+						<Badge badgeContent={props.downloads.length} color='primary'>
 							<Download/>
 						</Badge>
 					</ListItemIcon>
-					<ListItemText primary={'Downloads'} secondary={getMessage()}/>
+					<ListItemText primary={'Downloads'}/>
 				</ListItemButton>
 				<ListItemButton onClick={props.lock}>
 					<ListItemIcon>

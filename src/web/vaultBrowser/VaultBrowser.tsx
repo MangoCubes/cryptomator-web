@@ -1,11 +1,10 @@
 import { ArrowBack, Article, Delete, Download, Folder, Refresh } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Tooltip, IconButton } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
-import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
+import { DirID, EncryptedDir, EncryptedItem, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
-import { ItemDownloader } from "../ItemDownloader";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
@@ -43,7 +42,7 @@ export function VaultBrowser(props: {
 	vault: Vault,
 	client: WebDAV,
 	download: (item: EncryptedItem[], vault: Vault) => void,
-	downloads: {[path: ItemPath]: ItemDownloader},
+	downloads: Item[],
 	lock: () => void,
 	openDownloads: () => void
 }){

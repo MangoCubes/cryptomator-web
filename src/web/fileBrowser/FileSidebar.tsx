@@ -4,12 +4,11 @@ import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemBu
 import { Item, ItemPath } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";
-import { ItemDownloader, Progress } from "../ItemDownloader";
 import { SingleLine } from "../shared/SingleLine";
 
 export function FileSidebar(props: {
 	logout: () => void,
-	downloads: {[path: ItemPath]: ItemDownloader},
+	downloads: Item[],
 	openDownloads: () => void,
 	tree: DirCache<Item>,
 	dir: string[],
@@ -20,29 +19,6 @@ export function FileSidebar(props: {
 	const drawer = 240;
 
 	const [expanded, setExpanded] = useState<string[]>([]);
-
-	const getMessage = () => {
-		let done = 0;
-		let inProgress = 0;
-		for(const k in props.downloads){
-			const item = props.downloads[k as ItemPath];
-			if(item.progress.current === Progress.Done) done++;
-			else if(item.progress.current === Progress.Running) inProgress++;
-		}
-		const res = [];
-		if(inProgress !== 0) res.push(`${inProgress} in progress`);
-		if(done !== 0) res.push(`${done} completed`);
-		return res.join(', ');
-	}
-
-	const getCount = () => {
-		let inProgress = 0;
-		for(const k in props.downloads){
-			const item = props.downloads[k as ItemPath];
-			if(item.progress.current === Progress.Running) inProgress++;
-		}
-		return inProgress;
-	}
 
 	const getTreeItems = (dirKey: string) => {
 		const subDir = props.tree[dirKey];
@@ -101,11 +77,11 @@ export function FileSidebar(props: {
 			<List sx={{ maxWidth: drawer, overflow: 'auto'}}>
 				<ListItemButton onClick={props.openDownloads}>
 					<ListItemIcon>
-						<Badge badgeContent={getCount()} color='primary'>
+						<Badge badgeContent={props.downloads.length} color='primary'>
 							<Download/>
 						</Badge>
 					</ListItemIcon>
-					<ListItemText primary={'Downloads'} secondary={getMessage()}/>
+					<ListItemText primary={'Downloads'}/>
 				</ListItemButton>
 				<ListItemButton onClick={props.logout}>
 					<ListItemIcon>

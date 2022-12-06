@@ -5,7 +5,6 @@ import { Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
-import { ItemDownloader } from "../ItemDownloader";
 import { AddMenu } from "../shared/AddMenu";
 import { DeleteDialog } from "../shared/DeleteDialog";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
@@ -53,7 +52,7 @@ export function FileBrowser(props: {
 	setVault: (vault: Vault) => void,
 	download: (item: Item[]) => void,
 	logout: () => void,
-	downloads: {[path: ItemPath]: ItemDownloader},
+	downloads: Item[],
 	openDownloads: () => void
 }){
 
