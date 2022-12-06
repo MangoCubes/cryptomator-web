@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, ListItem, List, ListItemText } from "@mui/material";
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from 'react-dropzone';
 
@@ -33,16 +33,20 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 		});
 	}, []);
 
-	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
 
 	return (
 		<Dialog open={props.open} onClose={onClose}>
 			<DialogTitle>Upload files</DialogTitle>
 			<DialogContent>
 				<Box sx={{width: '30vw', height: '30vh'}} {...getRootProps()}>
-					<Box {...getInputProps()}>
-
-					</Box>
+					<input {...getInputProps()}/>
+					{
+						files.length === 0
+						? <Typography>Select files or drag them here</Typography>
+						: <FileList files={files}/>
+					}
+					
 				</Box>
 			</DialogContent>
 			<DialogActions>
@@ -50,5 +54,19 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 				<Button disabled={querying} onClick={upload}>Upload</Button>
 			</DialogActions>
 		</Dialog>
+	);
+}
+
+function FileList(props: {files: FileData[]}){
+	return (
+		<List>
+			{
+				props.files.map(f => 
+					<ListItem key={f.name}>
+						<ListItemText primary={f.name} secondary={`${f.data.length} bytes`} />
+					</ListItem>
+				)
+			}
+		</List>
 	)
 }
