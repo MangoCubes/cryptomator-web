@@ -41,7 +41,7 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 
 	useEffect(() => {
 		setFiles([]);
-	}, []);
+	}, [props.open]);
 
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
 
@@ -68,12 +68,20 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 }
 
 function FileList(props: {files: FileData[]}){
+
+	const getSize = (amount: number) => {
+		if(amount < 1000) return `${amount} B`;
+		if(amount < 1000000) return `${(amount / 1000).toFixed(1)} KB`
+		if(amount < 1000000000) return `${(amount / 1000000).toFixed(1)} MB`;
+		else return `${(amount / 1000000000).toFixed(1)} GB`;
+	}
+
 	return (
 		<List>
 			{
 				props.files.map(f => 
 					<ListItem key={f.name}>
-						<ListItemText primary={f.name} secondary={`${f.data.length} bytes`} />
+						<ListItemText primary={f.name} secondary={getSize(f.data.length)} />
 					</ListItem>
 				)
 			}
