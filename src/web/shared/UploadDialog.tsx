@@ -1,9 +1,16 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
-import { useState } from "react"
+import { useCallback, useState } from "react"
+import { useDropzone } from 'react-dropzone';
+
+
+type FileData = {
+	data: Uint8Array;
+	name: string;
+}
 
 export function UploadDialog(props: {open: boolean, close: () => void}){
 
-	const [files, setFiles] = useState<FileReader[]>([]);
+	const [files, setFiles] = useState<FileData[]>([]);
 	const [querying, setQuerying] = useState(false);
 
 	const onClose = () => {
@@ -14,23 +21,20 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 
 	}
 
-	const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		e.stopPropagation();
-		
-		const r = new FileReader();
-		r.readAsArrayBuffer(e.dataTransfer.files[0]);
-		r.addEventListener('loadend', () => {
-			console.log(r.result)
-		})
-	}
+	const onDrop = useCallback((acceptedFiles: File[]) => {
+		console.log(acceptedFiles);
+	}, []);
+
+	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
 	return (
 		<Dialog open={props.open} onClose={onClose}>
 			<DialogTitle>Upload files</DialogTitle>
 			<DialogContent>
-				<Box sx={{width: '500px', height: '500px'}} onDrop={onDrop} onDragStart={e => console.log(e)} onDragOver={(e) => e.preventDefault()}>
+				<Box sx={{width: '30vw', height: '30vh'}} {...getRootProps()}>
+					<Box {...getInputProps()}>
 
+					</Box>
 				</Box>
 			</DialogContent>
 			<DialogActions>
