@@ -1,24 +1,53 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, ListItem, List, ListItemText } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
+import { ProgressCallback } from "cryptomator-ts";
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from 'react-dropzone';
+import { WebDAV } from "../../lib/cryptomator/WebDAV";
+import { FileList } from "./FileList";
 
-
-type FileData = {
+export type FileData = {
 	data: Uint8Array;
 	name: string;
 }
 
-export function UploadDialog(props: {open: boolean, close: () => void}){
+export type UploadProgress = {
+	index: number;
+	progress: number;
+}
+
+export function UploadDialog(props: {open: boolean, close: () => void, client: WebDAV, currentPath: string}){
 
 	const [files, setFiles] = useState<FileData[]>([]);
 	const [querying, setQuerying] = useState(false);
+	const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
 
 	const onClose = () => {
 		if(querying || files.length !== 0) props.close();
 	}
 
-	const upload = () => {
+	const getUploadCallback = (index: number): ProgressCallback => {
+		return (current, total) => {
+			console.log(current, total);
+			setUploadProgress({
+				index: index,
+				progress: Math.floor((current * 100) / total)
+			});
+		}
+	}
 
+	const upload = async () => {
+		setQuerying(true);
+		try{
+			for(let i = 0; i < files.length; i++){
+				const f = files[i];
+				await props.client.writeFile(`${props.currentPath}${f.name}`, f.data);
+				console.log('Upload complete')
+			}
+		} catch (e) {
+			console.log(e)
+		} finally {
+			setQuerying(false);
+		}
 	}
 
 	const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -60,7 +89,7 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 							}}>
 								Click here to add files, or drag them here
 							</Box>
-						: <FileList files={files}/>
+						: <FileList files={files} uploadProgress={uploadProgress}/>
 					}
 					
 				</Box>
@@ -71,26 +100,4 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 			</DialogActions>
 		</Dialog>
 	);
-}
-
-function FileList(props: {files: FileData[]}){
-
-	const getSize = (amount: number) => {
-		if(amount < 1000) return `${amount} B`;
-		if(amount < 1000000) return `${(amount / 1000).toFixed(1)} KB`
-		if(amount < 1000000000) return `${(amount / 1000000).toFixed(1)} MB`;
-		else return `${(amount / 1000000000).toFixed(1)} GB`;
-	}
-
-	return (
-		<List>
-			{
-				props.files.map(f => 
-					<ListItem key={f.name}>
-						<ListItemText primary={f.name} secondary={getSize(f.data.length)} />
-					</ListItem>
-				)
-			}
-		</List>
-	)
 }

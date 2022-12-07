@@ -69,6 +69,7 @@ export class WebDAV implements DataProvider{
 
 	async writeFile(path: string, content: string | Uint8Array, progress?: ProgressCallback): Promise<void> {
 		await this.client.putFileContents(path, content, {
+			contentLength: content.length,
 			overwrite: false,
 			onUploadProgress: progress ? (e) => progress(e.loaded, e.total) : undefined
 		});
