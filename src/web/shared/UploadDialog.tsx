@@ -49,11 +49,17 @@ export function UploadDialog(props: {open: boolean, close: () => void}){
 		<Dialog open={props.open} onClose={onClose}>
 			<DialogTitle>Upload files</DialogTitle>
 			<DialogContent>
-				<Box sx={{width: '30vw', minHeight: '30vh'}} {...getRootProps()}>
+				<Box sx={{width: '30vw', minHeight: '30vh', display: 'flex', alignItems: 'stretch', border: 'dashed'}} {...getRootProps()}>
 					<input {...getInputProps()}/>
 					{
 						files.length === 0
-						? <Typography>Select files or drag them here</Typography>
+						? 	<Box sx={{
+								width: '100%',
+								textAlign: 'center',
+								alignSelf: 'center',
+							}}>
+								Click here to add files, or drag them here
+							</Box>
 						: <FileList files={files}/>
 					}
 					
