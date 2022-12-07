@@ -90,21 +90,16 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 	return (
 		<Dialog open={props.open} onClose={onClose}>
 			<DialogTitle>Upload files</DialogTitle>
-			<DialogContent>
-				<Box sx={{width: '30vw', minHeight: '30vh', display: 'flex', alignItems: 'stretch', border: 'dashed'}} {...getRootProps()}>
+			<DialogContent sx={{width: '30vw', minHeight: '30vh', flexDirection: 'column', display: 'flex'}}>
+				<Box {...getRootProps()} sx={{border: 'dashed', flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
 					<input {...getInputProps()}/>
 					{
 						files.length === 0
-						? 	<Box sx={{
-								width: '100%',
-								textAlign: 'center',
-								alignSelf: 'center',
-							}}>
+						? 	<Box>
 								Click here to add files, or drag them here
 							</Box>
 						: <FileList files={files} uploadProgress={uploadProgress}/>
 					}
-					
 				</Box>
 			</DialogContent>
 			<DialogActions>
