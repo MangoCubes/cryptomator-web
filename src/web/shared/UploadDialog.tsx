@@ -15,14 +15,14 @@ export type UploadProgress = {
 	progress: number;
 }
 
-export function UploadDialog(props: {open: boolean, close: () => void, client: WebDAV, currentPath: string}){
+export function UploadDialog(props: {open: boolean, close: () => void, client: WebDAV, currentPath: string, refresh: () => void}){
 
 	const [files, setFiles] = useState<FileData[]>([]);
 	const [querying, setQuerying] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
 
 	const onClose = () => {
-		if(querying || files.length !== 0) props.close();
+		if(!querying && files.length === 0) props.close();
 	}
 
 	const getUploadCallback = (index: number): ProgressCallback => {
@@ -41,6 +41,8 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 				const f = files[i];
 				await props.client.writeFile(`${props.currentPath}${f.name}`, f.data, getUploadCallback(i));
 			}
+			props.refresh();
+			props.close();
 		} catch (e) {
 			console.log(e)
 		} finally {
@@ -68,6 +70,7 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 
 	useEffect(() => {
 		setFiles([]);
+		setUploadProgress(null);
 	}, [props.open]);
 
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});

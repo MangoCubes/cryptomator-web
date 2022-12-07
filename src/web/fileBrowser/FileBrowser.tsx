@@ -302,7 +302,7 @@ export function FileBrowser(props: {
 				del={delSelected}
 				targets={delTargets}
 			/>
-			<UploadDialog open={open === Dialog.Upload} close={() => setOpen(Dialog.None)} client={props.client} currentPath={'/' + dir.join('/')}/>
+			<UploadDialog open={open === Dialog.Upload} close={() => setOpen(Dialog.None)} client={props.client} currentPath={'/' + dir.join('/')} refresh={reload}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{toolbar()}
