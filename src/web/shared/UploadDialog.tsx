@@ -27,7 +27,6 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 
 	const getUploadCallback = (index: number): ProgressCallback => {
 		return (current, total) => {
-			console.log(current, total);
 			setUploadProgress({
 				index: index,
 				progress: Math.floor((current * 100) / total)
@@ -40,8 +39,7 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 		try{
 			for(let i = 0; i < files.length; i++){
 				const f = files[i];
-				await props.client.writeFile(`${props.currentPath}${f.name}`, f.data);
-				console.log('Upload complete')
+				await props.client.writeFile(`${props.currentPath}${f.name}`, f.data, getUploadCallback(i));
 			}
 		} catch (e) {
 			console.log(e)
