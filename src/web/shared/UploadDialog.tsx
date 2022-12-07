@@ -62,7 +62,19 @@ export function UploadDialog(props: {open: boolean, close: () => void, client: W
 					data: new Uint8Array(res)
 				});
 				counter++;
-				if(counter === acceptedFiles.length) setFiles([...files, ...newFiles]);
+				if(counter === acceptedFiles.length) {
+					const copy = [...files];
+					for(let i = 0; i < copy.length; i++){
+						for(let j = 0; j < newFiles.length; j++){
+							if(copy[i].name === newFiles[j].name){
+								copy[i] = newFiles[j];
+								newFiles.splice(j, 1);
+								break;
+							}
+						}
+					}
+					setFiles([...copy, ...newFiles]);
+				}
 			}
 			reader.readAsArrayBuffer(f);
 		}
