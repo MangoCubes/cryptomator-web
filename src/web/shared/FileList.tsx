@@ -1,42 +1,49 @@
-import { List, ListItem, ListItemText, LinearProgress, Typography, Box } from "@mui/material";
+import { List, ListItem, ListItemText, LinearProgress, Typography, Box, Stack } from "@mui/material";
+import { SingleLine } from "./SingleLine";
 import { FileData, UploadProgress, UploadStatus } from "./UploadDialog";
 
 export function FileList(props: {files: FileData[], uploadProgress: UploadProgress | null}){
 
-	const status = () => {
-		if(props.uploadProgress === null) return;
-		if(props.uploadProgress.status === UploadStatus.Encrypting) return 'Encrypting...';
-		else if(props.uploadProgress.status === UploadStatus.Uploading) return 'Uploading...';
-		else if(props.uploadProgress.status === UploadStatus.Error) return 'Error!';
+	const status = (prog: UploadStatus) => {
+		if(prog === UploadStatus.Encrypting) return 'Encrypting...';
+		else if(prog === UploadStatus.Uploading) return 'Uploading...';
+		else if(prog === UploadStatus.Error) return 'Error!';
 	}
 
 	const secondary = (index: number, amount: number) => {
 		if(props.uploadProgress){
-			if(index < props.uploadProgress.index) return 'File uploaded';
-			else if(index > props.uploadProgress.index) return 'Upload queued';
+			if(index < props.uploadProgress.index) return <Typography variant='caption'>File uploaded</Typography>;
+			else if(index > props.uploadProgress.index) return <Typography variant='caption'>Upload queued</Typography>;
 			else {
-				if(props.uploadProgress.progress === 100) return 'Finalising...';
-				return (
-					<Box>
-						<Typography>{status()}</Typography>
-						<LinearProgress variant='determinate' value={props.uploadProgress.progress} />
-					</Box>
-				);
+				if(props.uploadProgress.progress === 100) return <Typography variant='caption'>Finalising...</Typography>;
+				else {
+					return (
+					<>
+						<Typography variant='caption'>{status(props.uploadProgress.status)}</Typography>
+						<LinearProgress key='prog' variant='determinate' value={props.uploadProgress.progress} />
+					</>
+					);
+				}
 			}
 		} else {
-			if(amount < 1000) return `${amount} B`;
-			if(amount < 1000000) return `${(amount / 1000).toFixed(1)} KB`
-			if(amount < 1000000000) return `${(amount / 1000000).toFixed(1)} MB`;
-			else return `${(amount / 1000000000).toFixed(1)} GB`;
+			let size;
+			if(amount < 1000) size = `${amount} B`;
+			if(amount < 1000000) size = `${(amount / 1000).toFixed(1)} KB`
+			if(amount < 1000000000) size = `${(amount / 1000000).toFixed(1)} MB`;
+			else size = `${(amount / 1000000000).toFixed(1)} GB`;
+			return <Typography variant='caption'>{size}</Typography>;
 		}
 	}
 
 	return (
-		<List>
+		<List sx={{width: '100%'}}>
 			{
 				props.files.map((f, i) => 
 					<ListItem key={f.name}>
-						<ListItemText primary={f.name} secondary={secondary(i, f.data.length)} />
+						<Stack sx={{width: '100%'}}>
+							<ListItemText primary={<SingleLine>{f.name}</SingleLine>}/>
+							{secondary(i, f.data.length)}
+						</Stack>
 					</ListItem>
 				)
 			}
