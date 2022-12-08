@@ -186,6 +186,7 @@ export function FileBrowser(props: {
 		setOpen(Dialog.None);
 		await Promise.all(tasks);
 		setQuerying(Querying.None);
+		setSel([]);
 		await reload();
 	}
 

@@ -55,9 +55,10 @@ export function UploadDialog(props: {
 			if(props.uploadDest.encrypted){
 
 			} else {
+				const targetDir = props.uploadDest.currentPath.endsWith('/') ? props.uploadDest.currentPath.slice(0, -1) : props.uploadDest.currentPath;
 				for(let i = 0; i < files.length; i++){
 					const f = files[i];
-					await props.uploadDest.client.writeFile(`${props.uploadDest.currentPath}${f.name}`, f.data, getUploadCallback(i));
+					await props.uploadDest.client.writeFile(`${targetDir}/${f.name}`, f.data, getUploadCallback(i));
 				}
 			}
 			props.refresh();
