@@ -22,6 +22,7 @@ export function FolderDialog(props: {open: boolean, close: () => void, create: (
 			await props.create(name);
 			props.close();
 		} catch (e) {
+			console.log(e)
 			setError(true);
 		} finally {
 			setQuerying(false);

@@ -53,7 +53,7 @@ export function UploadDialog(props: {
 		setQuerying(true);
 		try{
 			if(props.uploadDest.encrypted){
-
+				
 			} else {
 				const targetDir = props.uploadDest.currentPath.endsWith('/') ? props.uploadDest.currentPath.slice(0, -1) : props.uploadDest.currentPath;
 				for(let i = 0; i < files.length; i++){

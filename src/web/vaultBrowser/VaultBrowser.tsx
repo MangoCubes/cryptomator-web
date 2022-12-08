@@ -1,4 +1,4 @@
-import { ArrowBack, Article, Delete, Download, Folder, Refresh } from "@mui/icons-material";
+import { Add, ArrowBack, Article, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Tooltip, IconButton } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
@@ -6,7 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
+import { AddMenu } from "../shared/AddMenu";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
+import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
 import { VaultSidebar } from "./VaultSidebar";
@@ -31,6 +33,18 @@ export type DirInfo = {
 	id: DirID;
 };
 
+enum Dialog {
+	None,
+	// Dialog that shows content of a file, which can also be edited and saved
+	File,
+	// Dialog that asks user for folder name
+	Folder,
+	//Dialog that asks user for confirming delete operation
+	DelConfirm,
+	// Dialog that asks user for files to upload
+	Upload
+}
+
 /**
  * The following approach is used for this component:
  * Encrypted directory can be loaded independently from current directory
@@ -52,6 +66,8 @@ export function VaultBrowser(props: {
 	const [items, setItems] = useState<DirCache<EncryptedItem>>({});
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
 	const [sel, setSel] = useState<GridSelectionModel>([]);
+	const [menu, setMenu] = useState<null | HTMLElement>(null);
+	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	
 	const itemsCache = useRef<DirCache<EncryptedItem>>({'': {explored: ExpStatus.NotStarted}});
 
@@ -111,6 +127,12 @@ export function VaultBrowser(props: {
 	const saveItems = (data: DirCache<EncryptedItem>) => {
 		for(const k in data) itemsCache.current[k] = data[k];
 		setItems({...itemsCache.current});
+	}
+
+	const createFolder = async (name: string) => {
+		await props.vault.createDirectory(name, dir[dir.length - 1]?.id ?? '' as DirID);
+		setOpen(Dialog.None);
+		await reload();
 	}
 
 	const loadItems = async (dirId: DirID, bypassCache?: boolean) => {
@@ -189,9 +211,15 @@ export function VaultBrowser(props: {
 			<Toolbar>
 				<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
 				<Box sx={{flex: 1}}/>
+				<IconButton disabled={querying !== Querying.None} onClick={e => setOpen(Dialog.Upload)}>
+					<Upload/>
+				</IconButton>
+				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
+					<Add/>
+				</IconButton>
 				<Tooltip title='Refresh'>
 					<span>
-						<IconButton edge='end' onClick={reload}>
+						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>
 							<Refresh/>
 						</IconButton>
 					</span>
@@ -212,6 +240,13 @@ export function VaultBrowser(props: {
 				loadDir={loadItems}
 				vault={props.vault}
 			/>
+			<AddMenu
+				anchor={menu}
+				onClose={() => setMenu(null)}
+				createFile={() => setOpen(Dialog.File)}
+				createFolder={() => setOpen(Dialog.Folder)}
+			/>
+			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{getToolbar()}
