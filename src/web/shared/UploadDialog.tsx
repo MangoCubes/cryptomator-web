@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
-import { DirID, ProgressCallback, Vault } from "cryptomator-ts";
+import { DirID, EncryptedFile, ProgressCallback, Vault } from "cryptomator-ts";
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from 'react-dropzone';
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
@@ -10,9 +10,16 @@ export type FileData = {
 	name: string;
 }
 
+export enum UploadStatus{
+	Uploading,
+	Encrypting,
+	Error
+}
+
 export type UploadProgress = {
 	index: number;
 	progress: number;
+	status: UploadStatus;
 }
 
 export type UploadDest = {
@@ -40,11 +47,12 @@ export function UploadDialog(props: {
 		if(!querying && files.length === 0) props.close();
 	}
 
-	const getUploadCallback = (index: number): ProgressCallback => {
+	const getUploadCallback = (index: number, enc?: boolean): ProgressCallback => {
 		return (current, total) => {
 			setUploadProgress({
 				index: index,
-				progress: Math.floor((current * 100) / total)
+				progress: Math.floor((current * 100) / total),
+				status: enc ? UploadStatus.Encrypting : UploadStatus.Uploading
 			});
 		}
 	}
@@ -53,7 +61,13 @@ export function UploadDialog(props: {
 		setQuerying(true);
 		try{
 			if(props.uploadDest.encrypted){
-				
+				for(let i = 0; i < files.length; i++){
+					const f = files[i];
+					await EncryptedFile.encrypt(props.uploadDest.vault, f.name, props.uploadDest.id, f.data, {
+						encryption: getUploadCallback(i, true),
+						upload: getUploadCallback(i)
+					});
+				}
 			} else {
 				const targetDir = props.uploadDest.currentPath.endsWith('/') ? props.uploadDest.currentPath.slice(0, -1) : props.uploadDest.currentPath;
 				for(let i = 0; i < files.length; i++){

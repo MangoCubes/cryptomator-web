@@ -11,6 +11,7 @@ import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
+import { UploadDialog } from "../shared/UploadDialog";
 import { VaultSidebar } from "./VaultSidebar";
 
 enum Querying {
@@ -245,6 +246,15 @@ export function VaultBrowser(props: {
 				onClose={() => setMenu(null)}
 				createFile={() => setOpen(Dialog.File)}
 				createFolder={() => setOpen(Dialog.Folder)}
+			/>
+			<UploadDialog
+				open={open === Dialog.Upload}
+				close={() => setOpen(Dialog.None)}
+				uploadDest={{
+					encrypted: true,
+					vault: props.vault,
+					id: dir[dir.length - 1]?.id ?? '' as DirID
+				}} refresh={reload}
 			/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
