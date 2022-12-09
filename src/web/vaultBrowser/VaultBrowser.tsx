@@ -7,6 +7,7 @@ import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
 import { AddMenu } from "../shared/AddMenu";
+import { DeleteDialog } from "../shared/DeleteDialog";
 import { DirBreadcrumbs } from "../shared/DirBreadcrumbs";
 import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
@@ -69,6 +70,7 @@ export function VaultBrowser(props: {
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
+	const [delTargets, setDelTargets] = useState<EncryptedItem[]>([]);
 	
 	const itemsCache = useRef<DirCache<EncryptedItem>>({'': {explored: ExpStatus.NotStarted}});
 
@@ -84,8 +86,26 @@ export function VaultBrowser(props: {
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
 				const def = [];
-				if(params.row.type === 'f') def.push(<GridActionsCellItem icon={<Download/>} disabled={querying !== Querying.None} onClick={() => props.download([params.row.obj], props.vault)} label='Download' />);
-				if(params.row.type !== 'AAparent') def.push(<GridActionsCellItem icon={<Delete/>} disabled={querying !== Querying.None} label='Delete' showInMenu />);
+				if(params.row.type === 'f') def.push(
+					<GridActionsCellItem
+						icon={<Download/>}
+						disabled={querying !== Querying.None}
+						onClick={() => props.download([params.row.obj], props.vault)}
+						label='Download' 
+					/>
+				);
+				if(params.row.type !== 'AAparent') def.push(
+					<GridActionsCellItem
+						icon={<Delete/>}
+						disabled={querying !== Querying.None}
+						label='Delete'
+						showInMenu
+						onClick={() => {
+							setDelTargets([params.row.obj]);
+							setOpen(Dialog.DelConfirm);
+						}}
+					/>
+				);
 				return def;
 			}
 		}
@@ -199,6 +219,22 @@ export function VaultBrowser(props: {
 		return targets;
 	}
 
+	const delItem = async (item: EncryptedItem) => {
+		if(item.type === 'f') await props.vault.deleteFile(item);
+		else await props.vault.deleteDir(item);
+	}
+
+	const delSelected = async () => {
+		setQuerying(Querying.Partial);
+		const tasks: Promise<void>[] = [];
+		for(const t of delTargets) tasks.push(delItem(t));
+		setOpen(Dialog.None);
+		await Promise.all(tasks);
+		setQuerying(Querying.None);
+		setSel([]);
+		await reload();
+	}
+
 	const getToolbar = () => {
 		if(sel.length) return (
 			<SelectionToolbar
@@ -257,6 +293,12 @@ export function VaultBrowser(props: {
 				}} refresh={reload}
 			/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
+			<DeleteDialog
+				open={open === Dialog.DelConfirm}
+				close={() => setOpen(Dialog.None)}
+				del={delSelected}
+				targets={delTargets}
+			/>
 			<Box sx={{display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minWidth: 0}}>
 				<AppBar position='static'>
 					{getToolbar()}
