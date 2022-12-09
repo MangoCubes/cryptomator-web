@@ -38,13 +38,18 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 		try {
 			setQuerying(true);
 			const vault = await Vault.create(props.client, '/' + props.dir.join('/'), password, 
-				cvh ? {
-					name: null,
-					createHere: true
-				} : {
-					name: name
-				},
-				statusUpdate
+				{
+					create: cvh ? {
+						name: null,
+						createHere: true
+					} : {
+						name: name
+					},
+					callback: statusUpdate,
+					queryOpts: {
+						concurrency: 10
+					}
+				}
 			)
 			props.setVault(vault);
 			props.close();

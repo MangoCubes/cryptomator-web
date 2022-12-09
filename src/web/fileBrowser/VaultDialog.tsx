@@ -34,7 +34,10 @@ export function VaultDialog(props: {open: boolean, close: () => void, dir: strin
 				password,
 				props.dir[props.dir.length - 1] ?? 'Root',
 				{
-					onKeyLoad: () => setHelp('Decrypting...')
+					onKeyLoad: () => setHelp('Decrypting...'),
+					queryOpts: {
+						concurrency: 10
+					}
 				}
 			));
 		} catch (e) {
