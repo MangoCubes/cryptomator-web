@@ -5,14 +5,8 @@ export function AddMenu(props: {
 	createVault?: () => void,
 	anchor: HTMLElement | null,
 	onClose: () => void,
-	createFile: () => void,
 	createFolder: () => void
 }){
-	const createFile = () => {
-		props.createFile();
-		props.onClose();
-	}
-
 	const createFolder = () => {
 		props.createFolder();
 		props.onClose();
@@ -30,12 +24,6 @@ export function AddMenu(props: {
         	open={props.anchor !== null}
         	onClose={props.onClose}
 		>
-			<MenuItem onClick={createFile}>
-				<ListItemIcon>
-					<InsertDriveFile/>
-				</ListItemIcon>
-				<ListItemText>File</ListItemText>
-			</MenuItem>
 			<MenuItem onClick={createFolder}>
 				<ListItemIcon>
 					<CreateNewFolder/>

@@ -1,3 +1,0 @@
-Vault creation
-Text editor and folder creator
-Breadcrumbs

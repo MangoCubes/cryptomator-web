@@ -36,8 +36,6 @@ enum Dialog {
 	None,
 	// Dialog that unlocks vault
 	Password,
-	// Dialog that shows content of a file, which can also be edited and saved
-	File,
 	// Dialog that asks user for folder name
 	Folder,
 	// Dialog that asks user for password for a new vault
@@ -283,7 +281,6 @@ export function FileBrowser(props: {
 			<AddMenu
 				anchor={menu}
 				onClose={() => setMenu(null)}
-				createFile={() => setOpen(Dialog.File)}
 				createFolder={() => setOpen(Dialog.Folder)}
 				createVault={() => setOpen(Dialog.Vault)}
 			/>

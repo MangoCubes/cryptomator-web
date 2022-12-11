@@ -37,8 +37,6 @@ export type DirInfo = {
 
 enum Dialog {
 	None,
-	// Dialog that shows content of a file, which can also be edited and saved
-	File,
 	// Dialog that asks user for folder name
 	Folder,
 	//Dialog that asks user for confirming delete operation
@@ -281,7 +279,6 @@ export function VaultBrowser(props: {
 			<AddMenu
 				anchor={menu}
 				onClose={() => setMenu(null)}
-				createFile={() => setOpen(Dialog.File)}
 				createFolder={() => setOpen(Dialog.Folder)}
 			/>
 			<UploadDialog

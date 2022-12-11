@@ -13,10 +13,11 @@ Access Cryptomator vault without installing a program on your PC. Useful if you 
  - [x] Download normal files
  - [x] Decrypt and download encrypted files
  - [x] Download multiple files
- - [ ] Basic text editor
- - [ ] Basic directory manager
- - [ ] Create vault
- - [ ] Upload files into normal FS and Cryptomator FS
+ - [x] Basic directory manager
+ - [x] Create vault
+ - [x] Upload files into normal FS and Cryptomator FS
+
+Please suggest a feature to implement via issue tracker.
 
 ## Supported protocols/providers
  - [x] WebDAV
