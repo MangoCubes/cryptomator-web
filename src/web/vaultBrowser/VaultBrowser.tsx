@@ -112,7 +112,8 @@ export function VaultBrowser(props: {
 	], [props.download, querying]);
 
 	useEffect(() => {
-		loadItems('' as DirID, true);
+		setQuerying(Querying.Full);
+		loadItems('' as DirID, true).then(() => setQuerying(Querying.None));
 	}, []);
 
 	const getDirItems = () => {

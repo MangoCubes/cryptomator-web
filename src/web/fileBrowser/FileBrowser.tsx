@@ -113,7 +113,8 @@ export function FileBrowser(props: {
 	], [props.download, querying]);
 	
 	useEffect(() => {
-		loadItems([]);
+		setQuerying(Querying.Full);
+		loadItems([]).then(() => setQuerying(Querying.None));
 	}, []);
 
 	const getDirItems = (absDir?: string[]) => {
