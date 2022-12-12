@@ -184,7 +184,19 @@ export function VaultBrowser(props: {
 				explored: ExpStatus.Querying
 			};
 			saveItems(update);
-			const newItems = await props.vault.listItems(dirId);
+			const newItems = await props.vault.listItems(dirId, {
+				type: (current, total) => setQuerying({
+					status: QueryStatus.Full,
+					total: total * 2,
+					current: current + total
+				}),
+				name: (current, total) => setQuerying({
+					status: QueryStatus.Full,
+					total: total * 2,
+					current: current
+				})
+			});
+			console.log('done')
 			update[dirId] = {
 				child: newItems,
 				explored: ExpStatus.Ready
