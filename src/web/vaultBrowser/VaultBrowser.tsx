@@ -1,5 +1,5 @@
 import { Add, ArrowBack, Article, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Tooltip, IconButton } from "@mui/material";
+import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -360,4 +360,18 @@ export function VaultBrowser(props: {
 			</Box>
 		</Box>
 	);
+}
+
+function LoadingOverlay(props: Querying){
+	return(
+		<Stack spacing={1}>
+			{
+				props.status === QueryStatus.Full && props.total !== null
+				? (
+					<CircularProgress variant='determinate' value={Math.floor(props.current * 100 / props.total)}/>
+				)
+				: <CircularProgress/>
+			}
+		</Stack>
+	)
 }
