@@ -355,6 +355,12 @@ export function VaultBrowser(props: {
 						onSelectionModelChange={items => {
 							if(querying.status === QueryStatus.None) setSel(items);
 						}}
+						components={{
+							LoadingOverlay: LoadingOverlay
+						}}
+						componentsProps={{
+							loadingOverlay: querying
+						}}
 					/>
 				</Box>
 			</Box>
@@ -364,7 +370,7 @@ export function VaultBrowser(props: {
 
 function LoadingOverlay(props: Querying){
 	return(
-		<Stack spacing={1}>
+		<Stack sx={{height: '100%', width: '100%'}}spacing={1}>
 			{
 				props.status === QueryStatus.Full && props.total !== null
 				? (
