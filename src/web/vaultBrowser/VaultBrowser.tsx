@@ -38,7 +38,7 @@ type Querying = {
 } | {
 	status: QueryStatus.Full;
 	total: number;
-	current: null;
+	current: number;
 };
 
 export type DirInfo = {
@@ -98,7 +98,7 @@ export function VaultBrowser(props: {
 				if(params.row.type === 'f') def.push(
 					<GridActionsCellItem
 						icon={<Download/>}
-						disabled={querying !== {status: QueryStatus.None}}
+						disabled={querying.status !== QueryStatus.None}
 						onClick={() => props.download([params.row.obj], props.vault)}
 						label='Download' 
 					/>
@@ -106,7 +106,7 @@ export function VaultBrowser(props: {
 				if(params.row.type !== 'AAparent') def.push(
 					<GridActionsCellItem
 						icon={<Delete/>}
-						disabled={querying !== {status: QueryStatus.None}}
+						disabled={querying.status !== QueryStatus.None}
 						label='Delete'
 						showInMenu
 						onClick={() => {
@@ -218,7 +218,7 @@ export function VaultBrowser(props: {
 	}
 
 	const onRowClick = async (r: GridRowParams) => {
-		if(querying !== {status: QueryStatus.None}) return;
+		if(querying.status !== QueryStatus.None) return;
 		if(r.row.type === 'AAparent') changeDir(null);
 		else if(r.row.type === 'd') changeDir(r.row.obj);
 	}
@@ -260,22 +260,22 @@ export function VaultBrowser(props: {
 				selected={sel.length}
 				del={function (): void {
 				throw new Error("Function not implemented.");
-			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying !== {status: QueryStatus.None}}
+			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying.status !== QueryStatus.None}
 			/>
 		);
 		else return (
 			<Toolbar>
 				<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
 				<Box sx={{flex: 1}}/>
-				<IconButton disabled={querying !== {status: QueryStatus.None}} onClick={e => setOpen(Dialog.Upload)}>
+				<IconButton disabled={querying.status !== QueryStatus.None} onClick={e => setOpen(Dialog.Upload)}>
 					<Upload/>
 				</IconButton>
-				<IconButton disabled={querying !== {status: QueryStatus.None}} onClick={e => setMenu(e.currentTarget)}>
+				<IconButton disabled={querying.status !== QueryStatus.None} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
 				<Tooltip title='Refresh'>
 					<span>
-						<IconButton edge='end' onClick={reload} disabled={querying !== {status: QueryStatus.None}}>
+						<IconButton edge='end' onClick={reload} disabled={querying.status !== QueryStatus.None}>
 							<Refresh/>
 						</IconButton>
 					</span>
@@ -341,7 +341,7 @@ export function VaultBrowser(props: {
 						checkboxSelection
 						selectionModel={sel}
 						onSelectionModelChange={items => {
-							if(querying === {status: QueryStatus.None}) setSel(items);
+							if(querying.status === QueryStatus.None) setSel(items);
 						}}
 					/>
 				</Box>
