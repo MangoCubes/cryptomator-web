@@ -1,4 +1,4 @@
-import { InsertDriveFile, CreateNewFolder, EnhancedEncryption } from "@mui/icons-material";
+import { CreateNewFolder, EnhancedEncryption } from "@mui/icons-material";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 
 export function AddMenu(props: {

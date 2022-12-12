@@ -15,7 +15,7 @@ import { SingleLine } from "../shared/SingleLine";
 import { UploadDialog } from "../shared/UploadDialog";
 import { VaultSidebar } from "./VaultSidebar";
 
-enum Querying {
+enum QueryStatus {
 	/**
 	 * Disable nothing
 	 */
@@ -29,6 +29,17 @@ enum Querying {
 	 */
 	Full
 }
+
+type Querying = {
+	status: Exclude<QueryStatus, QueryStatus.Full>;
+} | {
+	status: QueryStatus.Full;
+	total: null;
+} | {
+	status: QueryStatus.Full;
+	total: number;
+	current: null;
+};
 
 export type DirInfo = {
 	name: string;
@@ -64,7 +75,7 @@ export function VaultBrowser(props: {
 
 	const [dir, setDir] = useState<DirInfo[]>([]);
 	const [items, setItems] = useState<DirCache<EncryptedItem>>({});
-	const [querying, setQuerying] = useState<Querying>(Querying.None);
+	const [querying, setQuerying] = useState<Querying>({status: QueryStatus.None});
 	const [sel, setSel] = useState<GridSelectionModel>([]);
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
@@ -87,7 +98,7 @@ export function VaultBrowser(props: {
 				if(params.row.type === 'f') def.push(
 					<GridActionsCellItem
 						icon={<Download/>}
-						disabled={querying !== Querying.None}
+						disabled={querying !== {status: QueryStatus.None}}
 						onClick={() => props.download([params.row.obj], props.vault)}
 						label='Download' 
 					/>
@@ -95,7 +106,7 @@ export function VaultBrowser(props: {
 				if(params.row.type !== 'AAparent') def.push(
 					<GridActionsCellItem
 						icon={<Delete/>}
-						disabled={querying !== Querying.None}
+						disabled={querying !== {status: QueryStatus.None}}
 						label='Delete'
 						showInMenu
 						onClick={() => {
@@ -110,8 +121,11 @@ export function VaultBrowser(props: {
 	], [props.download, querying]);
 
 	useEffect(() => {
-		setQuerying(Querying.Full);
-		loadItems('' as DirID, true).then(() => setQuerying(Querying.None));
+		setQuerying({
+			status: QueryStatus.Full,
+			total: null
+		});
+		loadItems('' as DirID, true).then(() => setQuerying({status: QueryStatus.None}));
 	}, []);
 
 	const getDirItems = () => {
@@ -184,7 +198,10 @@ export function VaultBrowser(props: {
 	}
 
 	const changeDir = async (subDir: EncryptedDir | null) => {
-		setQuerying(Querying.Full);
+		setQuerying({
+			status: QueryStatus.Full,
+			total: null
+		});
 		if (subDir === null) {
 			const newDir = dir.slice(0, -1);
 			await loadItems(dir[dir.length - 1].id);
@@ -197,19 +214,22 @@ export function VaultBrowser(props: {
 			await loadItems(dirInfo.id);
 			setDir([...dir, dirInfo]);
 		}
-		setQuerying(Querying.None);
+		setQuerying({status: QueryStatus.None});
 	}
 
 	const onRowClick = async (r: GridRowParams) => {
-		if(querying !== Querying.None) return;
+		if(querying !== {status: QueryStatus.None}) return;
 		if(r.row.type === 'AAparent') changeDir(null);
 		else if(r.row.type === 'd') changeDir(r.row.obj);
 	}
 
 	const reload = async () => {
-		setQuerying(Querying.Full);
+		setQuerying({
+			status: QueryStatus.Full,
+			total: null
+		});
 		await loadItems(dir[dir.length - 1]?.id ?? '' as DirID, true);
-		setQuerying(Querying.None);
+		setQuerying({status: QueryStatus.None});
 	}
 
 	const getSelectedItems = () => {
@@ -224,12 +244,12 @@ export function VaultBrowser(props: {
 	}
 
 	const delSelected = async () => {
-		setQuerying(Querying.Partial);
+		setQuerying({status: QueryStatus.Partial});
 		const tasks: Promise<void>[] = [];
 		for(const t of delTargets) tasks.push(delItem(t));
 		setOpen(Dialog.None);
 		await Promise.all(tasks);
-		setQuerying(Querying.None);
+		setQuerying({status: QueryStatus.None});
 		setSel([]);
 		await reload();
 	}
@@ -240,22 +260,22 @@ export function VaultBrowser(props: {
 				selected={sel.length}
 				del={function (): void {
 				throw new Error("Function not implemented.");
-			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying !== Querying.None}
+			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying !== {status: QueryStatus.None}}
 			/>
 		);
 		else return (
 			<Toolbar>
 				<SingleLine variant='h5'>{`${[props.vault.name]}: ${dir.length === 0 ? 'Root' : dir[dir.length - 1].name}`}</SingleLine>
 				<Box sx={{flex: 1}}/>
-				<IconButton disabled={querying !== Querying.None} onClick={e => setOpen(Dialog.Upload)}>
+				<IconButton disabled={querying !== {status: QueryStatus.None}} onClick={e => setOpen(Dialog.Upload)}>
 					<Upload/>
 				</IconButton>
-				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
+				<IconButton disabled={querying !== {status: QueryStatus.None}} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
 				<Tooltip title='Refresh'>
 					<span>
-						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>
+						<IconButton edge='end' onClick={reload} disabled={querying !== {status: QueryStatus.None}}>
 							<Refresh/>
 						</IconButton>
 					</span>
@@ -317,11 +337,11 @@ export function VaultBrowser(props: {
 						isRowSelectable={(params: GridRowParams) => params.row.type === 'f'}
 						columns={columns}
 						rows={rows}
-						loading={querying === Querying.Full}
+						loading={querying.status === QueryStatus.Full}
 						checkboxSelection
 						selectionModel={sel}
 						onSelectionModelChange={items => {
-							if(querying === Querying.None) setSel(items);
+							if(querying === {status: QueryStatus.None}) setSel(items);
 						}}
 					/>
 				</Box>
