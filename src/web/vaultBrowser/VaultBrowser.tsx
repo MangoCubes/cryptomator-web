@@ -1,5 +1,5 @@
 import { Add, ArrowBack, Article, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typography } from "@mui/material";
+import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typography, Backdrop } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -370,28 +370,30 @@ export function VaultBrowser(props: {
 
 function LoadingOverlay(props: Querying & {status: QueryStatus.Full}){
 	return(
-		<Stack sx={{height: '100%', width: '100%'}}spacing={1}>
-			{
-				props.total !== null
-				? (
-					<>
-						<CircularProgress variant='determinate' value={Math.floor(props.current * 100 / props.total)}/>
-						<Typography>
-						{
-							props.current * 2 < props.total
-							? 'Decrypting names...'
-							: 'Determining file type...'
-						}
-						</Typography>
-					</>
-				)
-				: (
-					<>
-						<CircularProgress/>
-						<Typography>Listing files...</Typography>
-					</>
-				)
-			}
-		</Stack>
+		<Backdrop open={true} sx={{height: '100%', width: '100%'}}>
+			<Stack sx={{height: '100%', width: '100%'}} spacing={1} alignItems='center' justifyContent='center'>
+				{
+					props.total !== null
+					? (
+						<>
+							<CircularProgress variant='determinate' value={Math.floor(props.current * 100 / props.total)}/>
+							<Typography>
+							{
+								props.current * 2 < props.total
+								? 'Decrypting names...'
+								: 'Determining file type...'
+							}
+							</Typography>
+						</>
+					)
+					: (
+						<>
+							<CircularProgress/>
+							<Typography>Listing files...</Typography>
+						</>
+					)
+				}
+			</Stack>
+		</Backdrop>
 	)
 }
