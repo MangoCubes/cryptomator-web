@@ -258,20 +258,35 @@ export function VaultBrowser(props: {
 		return targets;
 	}
 
-	const delItem = async (item: EncryptedItem) => {
+	const delItem = async (item: EncryptedItem, onDiscover: ProgressCallback) => {
 		if(item.type === 'f') await props.vault.deleteFile(item);
-		else await props.vault.deleteDir(item, (discovered, toDiscover) => setDiscovery([discovered, toDiscover]));
+		else await props.vault.deleteDir(item, onDiscover);
 	}
 
 	const delSelected = async () => {
 		setQuerying({status: QueryStatus.Partial});
 		const tasks: Promise<void>[] = [];
-		for(const t of delTargets) tasks.push(delItem(t));
+		const discoveryProgress: {[id: number]: [number, number]} = {};
+		const discoveryCallback = (index: number): ProgressCallback => {
+			return (discovered, toDiscover) => {
+				discoveryProgress[index] = [discovered, toDiscover];
+				let totalDiscovered = 0;
+				let totalToDiscover = 0;
+				for(const k in discoveryProgress) {
+					const [d, td] = discoveryProgress[k];
+					totalDiscovered += d;
+					totalToDiscover += td;
+				}
+				setDiscovery([totalDiscovered, totalToDiscover]);
+			}
+		}
+		delTargets.forEach((item, index) => tasks.push(delItem(item, discoveryCallback(index))));
 		setOpen(Dialog.DelProgress);
 		await Promise.all(tasks);
 		setQuerying({status: QueryStatus.None});
 		setOpen(Dialog.None);
 		setSel([]);
+		setDiscovery([0, 0]);
 		await reload();
 	}
 
