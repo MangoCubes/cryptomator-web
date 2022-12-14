@@ -370,7 +370,7 @@ export function VaultBrowser(props: {
 
 function LoadingOverlay(props: Querying & {status: QueryStatus.Full}){
 	return(
-		<Backdrop open={true} sx={{height: '100%', width: '100%'}}>
+		<Backdrop open={true} sx={{height: '100%', width: '100%', zIndex: (theme) => theme.zIndex.drawer - 1 }}>
 			<Stack sx={{height: '100%', width: '100%'}} spacing={1} alignItems='center' justifyContent='center'>
 				{
 					props.total !== null
