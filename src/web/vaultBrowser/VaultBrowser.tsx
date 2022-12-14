@@ -1,7 +1,7 @@
 import { Add, ArrowBack, Article, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typography, Backdrop } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
-import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
+import { DirID, EncryptedDir, EncryptedItem, ItemPath, ProgressCallback, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
@@ -13,6 +13,7 @@ import { FolderDialog } from "../shared/FolderDialog";
 import { SelectionToolbar } from "../shared/SelectionToolbar";
 import { SingleLine } from "../shared/SingleLine";
 import { UploadDialog } from "../shared/UploadDialog";
+import { DeleteProgressDialog } from "./DeleteProgressDialog";
 import { VaultSidebar } from "./VaultSidebar";
 
 enum QueryStatus {
@@ -50,8 +51,10 @@ enum Dialog {
 	None,
 	// Dialog that asks user for folder name
 	Folder,
-	//Dialog that asks user for confirming delete operation
+	// Dialog that asks user for confirming delete operation
 	DelConfirm,
+	// Dialog that shows how much delete needs to be done
+	DelProgress,
 	// Dialog that asks user for files to upload
 	Upload
 }
@@ -80,6 +83,7 @@ export function VaultBrowser(props: {
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	const [delTargets, setDelTargets] = useState<EncryptedItem[]>([]);
+	const [discovery, setDiscovery] = useState<[number, number]>([0, 0]);
 	
 	const itemsCache = useRef<DirCache<EncryptedItem>>({'': {explored: ExpStatus.NotStarted}});
 
@@ -127,6 +131,10 @@ export function VaultBrowser(props: {
 		});
 		loadItems('' as DirID, true).then(() => setQuerying({status: QueryStatus.None}));
 	}, []);
+
+	useEffect(() => {
+		console.log(discovery);
+	}, [discovery])
 
 	const getDirItems = () => {
 		const currentDirId = dir.length === 0 ? '' as DirID : dir[dir.length - 1].id;
@@ -252,16 +260,17 @@ export function VaultBrowser(props: {
 
 	const delItem = async (item: EncryptedItem) => {
 		if(item.type === 'f') await props.vault.deleteFile(item);
-		else await props.vault.deleteDir(item);
+		else await props.vault.deleteDir(item, (discovered, toDiscover) => setDiscovery([discovered, toDiscover]));
 	}
 
 	const delSelected = async () => {
 		setQuerying({status: QueryStatus.Partial});
 		const tasks: Promise<void>[] = [];
 		for(const t of delTargets) tasks.push(delItem(t));
-		setOpen(Dialog.None);
+		setOpen(Dialog.DelProgress);
 		await Promise.all(tasks);
 		setQuerying({status: QueryStatus.None});
+		setOpen(Dialog.None);
 		setSel([]);
 		await reload();
 	}
@@ -270,9 +279,12 @@ export function VaultBrowser(props: {
 		if(sel.length) return (
 			<SelectionToolbar
 				selected={sel.length}
-				del={function (): void {
-				throw new Error("Function not implemented.");
-			} } download={() => props.download(getSelectedItems(), props.vault)} disabled={querying.status !== QueryStatus.None}
+				del={() => {
+					setDelTargets(getSelectedItems());
+					setOpen(Dialog.DelConfirm);
+				}}
+				download={() => props.download(getSelectedItems(), props.vault)}
+				disabled={querying.status !== QueryStatus.None}
 			/>
 		);
 		else return (
@@ -323,6 +335,7 @@ export function VaultBrowser(props: {
 				}} refresh={reload}
 			/>
 			<FolderDialog open={open === Dialog.Folder} close={() => setOpen(Dialog.None)} create={createFolder}/>
+			<DeleteProgressDialog open={open === Dialog.DelProgress} discovered={discovery[0]} toDiscover={discovery[1]}/>
 			<DeleteDialog
 				open={open === Dialog.DelConfirm}
 				close={() => setOpen(Dialog.None)}
