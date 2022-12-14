@@ -285,6 +285,7 @@ export function VaultBrowser(props: {
 				}}
 				download={() => props.download(getSelectedItems(), props.vault)}
 				disabled={querying.status !== QueryStatus.None}
+				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
 			/>
 		);
 		else return (
@@ -359,7 +360,7 @@ export function VaultBrowser(props: {
 						}}
 						onRowClick={onRowClick}
 						disableSelectionOnClick
-						isRowSelectable={(params: GridRowParams) => params.row.type === 'f'}
+						isRowSelectable={(params: GridRowParams) => params.row.type !== 'AAparent'}
 						columns={columns}
 						rows={rows}
 						loading={querying.status === QueryStatus.Full}

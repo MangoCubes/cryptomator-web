@@ -3,7 +3,7 @@ import { Toolbar, Box, Tooltip, IconButton, Menu, MenuItem, ListItemIcon, ListIt
 import { useState } from "react";
 import { SingleLine } from "./SingleLine";
 
-export function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, disabled: boolean}){
+export function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, disabled: boolean, disableDownloadOnly: boolean}){
 
 	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -11,9 +11,9 @@ export function SelectionToolbar(props: {selected: number, del: () => void, down
 		<Toolbar>
 			<SingleLine variant='h5'>{`${props.selected} items selected`}</SingleLine>
 			<Box sx={{flex: 1}}/>
-			<Tooltip title='Download selected'>
+			<Tooltip title={props.disableDownloadOnly ? 'Cannot download folders' : 'Download selected'}>
 				<span>
-					<IconButton onClick={props.download} disabled={props.disabled}>
+					<IconButton onClick={props.download} disabled={props.disabled || props.disableDownloadOnly}>
 						<Download/>
 					</IconButton>
 				</span>

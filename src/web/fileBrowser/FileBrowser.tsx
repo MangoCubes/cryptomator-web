@@ -247,6 +247,7 @@ export function FileBrowser(props: {
 				}}
 				download={downloadSelected}
 				disabled={querying !== Querying.None}
+				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
 			/>
 		);
 		else return (
@@ -327,7 +328,7 @@ export function FileBrowser(props: {
 						}}
 						onRowClick={onRowClick}
 						disableSelectionOnClick
-						isRowSelectable={(params: GridRowParams) => params.row.type === 'f'}
+						isRowSelectable={(params: GridRowParams) => params.row.type !== 'AAparent'}
 						columns={columns}
 						rows={getRows()}
 						loading={querying === Querying.Full}
