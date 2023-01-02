@@ -16,6 +16,12 @@ export class WebDAV implements DataProvider{
 			password: password
 		});
 	}
+	async rename (path: string, newPath: string): Promise<void> {
+		await this.client.moveFile(path, newPath);
+	}
+	async move (path: string, newPath: string): Promise<void> {
+		await this.client.moveFile(path, newPath);
+	}
 	async exists(path: string){
 		return await this.client.exists(path);
 	}

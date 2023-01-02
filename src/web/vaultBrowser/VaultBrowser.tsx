@@ -132,10 +132,6 @@ export function VaultBrowser(props: {
 		loadItems('' as DirID, true).then(() => setQuerying({status: QueryStatus.None}));
 	}, []);
 
-	useEffect(() => {
-		console.log(discovery);
-	}, [discovery])
-
 	const getDirItems = () => {
 		const currentDirId = dir.length === 0 ? '' as DirID : dir[dir.length - 1].id;
 		const currentItems = items[currentDirId];
