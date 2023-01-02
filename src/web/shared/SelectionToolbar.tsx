@@ -1,9 +1,9 @@
-import { Download, MoreVert, Delete } from "@mui/icons-material";
+import { Download, MoreVert, Delete, DriveFileMove } from "@mui/icons-material";
 import { Toolbar, Box, Tooltip, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useState } from "react";
 import { SingleLine } from "./SingleLine";
 
-export function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, disabled: boolean, disableDownloadOnly: boolean}){
+export function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, move: () => void, disabled: boolean, disableDownloadOnly: boolean}){
 
 	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -15,6 +15,13 @@ export function SelectionToolbar(props: {selected: number, del: () => void, down
 				<span>
 					<IconButton onClick={props.download} disabled={props.disabled || props.disableDownloadOnly}>
 						<Download/>
+					</IconButton>
+				</span>
+			</Tooltip>
+			<Tooltip title={'Move selected'}>
+				<span>
+					<IconButton onClick={props.move} disabled={props.disabled}>
+						<DriveFileMove/>
 					</IconButton>
 				</span>
 			</Tooltip>

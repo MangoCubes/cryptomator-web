@@ -43,7 +43,9 @@ enum Dialog {
 	//Dialog that asks user for confirming delete operation
 	DelConfirm,
 	// Dialog that asks user for files to upload
-	Upload
+	Upload,
+	// Dialog that lets user to choose which folder the selected items should go
+	Selector
 }
 
 export function FileBrowser(props: {
@@ -231,10 +233,6 @@ export function FileBrowser(props: {
 			else if(i.type === 'd' && i.name === 'd') count++;
 		}
 		return count === 3;
-	}	
-
-	const createFile = async () => {
-
 	}
 	
 	const toolbar = () => {
@@ -244,10 +242,11 @@ export function FileBrowser(props: {
 				del={() => {
 					setDelTargets(getSelectedItems());
 					setOpen(Dialog.DelConfirm);
-				}}
+				} }
 				download={downloadSelected}
 				disabled={querying !== Querying.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
+				move={() => setOpen(Dialog.Selector)}
 			/>
 		);
 		else return (
