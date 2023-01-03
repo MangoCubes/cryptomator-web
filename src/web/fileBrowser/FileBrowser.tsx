@@ -261,6 +261,11 @@ export function FileBrowser(props: {
 		});
 		setSel([]);
 	}
+
+	const canBeMoved = () => {
+		const current = '/' + dir.join('/');
+		return !clipboard?.exclude.some(d => current.startsWith(d));
+	}
 	
 	const toolbar = () => {
 		if(sel.length) return (
@@ -289,7 +294,7 @@ export function FileBrowser(props: {
 				{
 					clipboard && <Tooltip title={'Move to here'}>
 						<span>
-							<IconButton onClick={moveSelected} disabled={querying !== Querying.None}>
+							<IconButton onClick={moveSelected} disabled={querying !== Querying.None || !canBeMoved()}>
 								<ContentPaste/>
 							</IconButton>
 						</span>

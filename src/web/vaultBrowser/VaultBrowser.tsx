@@ -311,6 +311,11 @@ export function VaultBrowser(props: {
 		});
 	}
 
+	const canBeMoved = () => {
+		const current = dir.map(d => d.id);
+		return !clipboard?.exclude.some(d => current.includes(d));
+	}
+
 	const getToolbar = () => {
 		if(sel.length) return (
 			<SelectionToolbar
@@ -338,7 +343,7 @@ export function VaultBrowser(props: {
 				{
 					clipboard && <Tooltip title={'Move to here'}>
 						<span>
-							<IconButton onClick={moveSelected} disabled={querying.status !== QueryStatus.None}>
+							<IconButton onClick={moveSelected} disabled={querying.status !== QueryStatus.None || !canBeMoved()}>
 								<ContentPaste/>
 							</IconButton>
 						</span>
