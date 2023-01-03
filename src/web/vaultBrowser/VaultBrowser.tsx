@@ -57,8 +57,6 @@ enum Dialog {
 	DelProgress,
 	// Dialog that asks user for files to upload
 	Upload,
-	// Dialog that lets user to choose which folder the selected items should go
-	Selector
 }
 
 /**
@@ -86,6 +84,7 @@ export function VaultBrowser(props: {
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	const [delTargets, setDelTargets] = useState<EncryptedItem[]>([]);
 	const [discovery, setDiscovery] = useState<[number, number]>([0, 0]);
+	const [clipboard, setClipboard] = useState<EncryptedItem[]>([]);
 	
 	const itemsCache = useRef<DirCache<EncryptedItem>>({'': {explored: ExpStatus.NotStarted}});
 
@@ -288,6 +287,15 @@ export function VaultBrowser(props: {
 		await reload();
 	}
 
+	const moveSelected = async (target: DirID) => {
+		setQuerying({status: QueryStatus.Partial});
+		const targets = getSelectedItems();
+		await Vault.move(targets, target);
+		setQuerying({status: QueryStatus.None});
+		setSel([]);
+		await reload();
+	}
+
 	const getToolbar = () => {
 		if(sel.length) return (
 			<SelectionToolbar
@@ -299,7 +307,9 @@ export function VaultBrowser(props: {
 				download={() => props.download(getSelectedItems(), props.vault)}
 				disabled={querying.status !== QueryStatus.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				move={() => setOpen(Dialog.Selector)}
+				move={() => setClipboard(getSelectedItems())}
+				clipboard={() => setClipboard(getSelectedItems())}
+				enableMove={clipboard.length !== 0}
 			/>
 		);
 		else return (

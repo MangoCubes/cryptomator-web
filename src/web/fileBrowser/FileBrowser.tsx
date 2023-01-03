@@ -44,8 +44,6 @@ enum Dialog {
 	DelConfirm,
 	// Dialog that asks user for files to upload
 	Upload,
-	// Dialog that lets user to choose which folder the selected items should go
-	Selector
 }
 
 export function FileBrowser(props: {
@@ -67,6 +65,7 @@ export function FileBrowser(props: {
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
 	const [delTargets, setDelTargets] = useState<Item[]>([]);
+	const [clipboard, setClipboard] = useState<Item[]>([]);
 
 	/**
 	 * To handle multiple queries running asynchronously, the following approach is used:
@@ -246,7 +245,9 @@ export function FileBrowser(props: {
 				download={downloadSelected}
 				disabled={querying !== Querying.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				move={() => setOpen(Dialog.Selector)}
+				move={() => setClipboard(getSelectedItems())}
+				clipboard={() => setClipboard(getSelectedItems())}
+				enableMove={clipboard.length !== 0}
 			/>
 		);
 		else return (

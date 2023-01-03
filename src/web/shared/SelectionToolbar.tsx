@@ -3,7 +3,16 @@ import { Toolbar, Box, Tooltip, IconButton, Menu, MenuItem, ListItemIcon, ListIt
 import { useState } from "react";
 import { SingleLine } from "./SingleLine";
 
-export function SelectionToolbar(props: {selected: number, del: () => void, download: () => void, move: () => void, disabled: boolean, disableDownloadOnly: boolean}){
+export function SelectionToolbar(props: {
+	selected: number,
+	del: () => void,
+	download: () => void,
+	move: () => void,
+	disabled: boolean,
+	disableDownloadOnly: boolean,
+	clipboard: () => void,
+	enableMove: boolean
+}){
 
 	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
