@@ -46,6 +46,11 @@ enum Dialog {
 	Upload,
 }
 
+type Clipboard = {
+	items: Item[];
+	from: string[];
+}
+
 export function FileBrowser(props: {
 	client: WebDAV,
 	setVault: (vault: Vault) => void,
@@ -65,7 +70,7 @@ export function FileBrowser(props: {
 	const [querying, setQuerying] = useState<Querying>(Querying.None);
 	const [menu, setMenu] = useState<null | HTMLElement>(null);
 	const [delTargets, setDelTargets] = useState<Item[]>([]);
-	const [clipboard, setClipboard] = useState<Item[]>([]);
+	const [clipboard, setClipboard] = useState<Clipboard | null>(null);
 
 	/**
 	 * To handle multiple queries running asynchronously, the following approach is used:
@@ -235,19 +240,23 @@ export function FileBrowser(props: {
 	}
 
 	const moveSelected = async () => {
+		if(!clipboard) return;
 		setQuerying(Querying.Partial);
 		const move = async (file: Item) => {
 			const newFileName = `/${dir.join('/')}/${file.name}`;
 			await props.client.move(file.fullName, newFileName);
 		}
-		await Promise.all(clipboard.map(i => move(i)));
+		await Promise.all(clipboard.items.map(i => move(i)));
 		setQuerying(Querying.None);
-		setClipboard([]);
+		setClipboard(null);
 		await reload();
 	}
 
 	const setMoveTargets = () => {
-		setClipboard(getSelectedItems());
+		setClipboard({
+			items: getSelectedItems(),
+			from: [...dir]
+		});
 		setSel([]);
 	}
 	
@@ -276,7 +285,7 @@ export function FileBrowser(props: {
 					<Add/>
 				</IconButton>
 				{
-					clipboard.length !== 0 && <Tooltip title={'Move to here'}>
+					clipboard && <Tooltip title={'Move to here'}>
 						<span>
 							<IconButton onClick={moveSelected} disabled={querying !== Querying.None}>
 								<ContentPaste/>
