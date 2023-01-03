@@ -59,6 +59,11 @@ enum Dialog {
 	Upload,
 }
 
+type Clipboard = {
+	items: EncryptedItem[];
+	from: DirID;
+}
+
 /**
  * The following approach is used for this component:
  * Encrypted directory can be loaded independently from current directory
@@ -84,7 +89,7 @@ export function VaultBrowser(props: {
 	const [open, setOpen] = useState<Dialog>(Dialog.None);
 	const [delTargets, setDelTargets] = useState<EncryptedItem[]>([]);
 	const [discovery, setDiscovery] = useState<[number, number]>([0, 0]);
-	const [clipboard, setClipboard] = useState<EncryptedItem[]>([]);
+	const [clipboard, setClipboard] = useState<Clipboard | null>(null);
 	
 	const itemsCache = useRef<DirCache<EncryptedItem>>({'': {explored: ExpStatus.NotStarted}});
 
@@ -288,15 +293,19 @@ export function VaultBrowser(props: {
 	}
 
 	const moveSelected = async () => {
+		if(!clipboard) return;
 		setQuerying({status: QueryStatus.Partial});
-		await Vault.move(clipboard, dir[dir.length - 1].id);
+		await Vault.move(clipboard.items, dir[dir.length - 1].id);
 		setQuerying({status: QueryStatus.None});
-		setClipboard([]);
+		setClipboard(null);
 		await reload();
 	}
 
 	const setMoveTargets = () => {
-		setClipboard(getSelectedItems());
+		setClipboard({
+			items: getSelectedItems(),
+			from: dir[dir.length - 1].id
+		});
 		setSel([]);
 	}
 
@@ -325,7 +334,7 @@ export function VaultBrowser(props: {
 					<Add/>
 				</IconButton>
 				{
-					clipboard.length !== 0 && <Tooltip title={'Move to here'}>
+					clipboard && <Tooltip title={'Move to here'}>
 						<span>
 							<IconButton onClick={moveSelected} disabled={querying.status !== QueryStatus.None}>
 								<ContentPaste/>
