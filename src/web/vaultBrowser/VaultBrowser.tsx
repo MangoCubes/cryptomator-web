@@ -61,7 +61,7 @@ enum Dialog {
 
 type Clipboard = {
 	items: EncryptedItem[];
-	from: DirID;
+	exclude: DirID[];
 }
 
 /**
@@ -301,12 +301,14 @@ export function VaultBrowser(props: {
 		await reload();
 	}
 
-	const setMoveTargets = () => {
-		setClipboard({
-			items: getSelectedItems(),
-			from: dir[dir.length - 1].id
-		});
+	const setMoveTargets = async () => {
+		const items = getSelectedItems();
+		const dirs = items.filter(i => i.type === 'd') as EncryptedDir[];
 		setSel([]);
+		setClipboard({
+			items: items,
+			exclude: await Promise.all(dirs.map(d => d.getDirId()))
+		});
 	}
 
 	const getToolbar = () => {

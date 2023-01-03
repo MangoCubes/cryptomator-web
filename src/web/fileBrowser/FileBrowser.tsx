@@ -48,7 +48,7 @@ enum Dialog {
 
 type Clipboard = {
 	items: Item[];
-	from: string[];
+	exclude: string[];
 }
 
 export function FileBrowser(props: {
@@ -253,9 +253,11 @@ export function FileBrowser(props: {
 	}
 
 	const setMoveTargets = () => {
+		const items = getSelectedItems();
+		const dirs = items.filter(i => i.type ==='d') as Directory[];
 		setClipboard({
-			items: getSelectedItems(),
-			from: [...dir]
+			items: items,
+			exclude: dirs.map(d => d.fullName)
 		});
 		setSel([]);
 	}
