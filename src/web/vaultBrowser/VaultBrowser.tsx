@@ -295,6 +295,11 @@ export function VaultBrowser(props: {
 		await reload();
 	}
 
+	const setMoveTargets = () => {
+		setClipboard(getSelectedItems());
+		setSel([]);
+	}
+
 	const getToolbar = () => {
 		if(sel.length) return (
 			<SelectionToolbar
@@ -306,7 +311,7 @@ export function VaultBrowser(props: {
 				download={() => props.download(getSelectedItems(), props.vault)}
 				disabled={querying.status !== QueryStatus.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				clipboard={() => setClipboard(getSelectedItems())}
+				clipboard={setMoveTargets}
 			/>
 		);
 		else return (

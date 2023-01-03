@@ -245,6 +245,11 @@ export function FileBrowser(props: {
 		setClipboard([]);
 		await reload();
 	}
+
+	const setMoveTargets = () => {
+		setClipboard(getSelectedItems());
+		setSel([]);
+	}
 	
 	const toolbar = () => {
 		if(sel.length) return (
@@ -257,7 +262,7 @@ export function FileBrowser(props: {
 				download={downloadSelected}
 				disabled={querying !== Querying.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				clipboard={() => setClipboard(getSelectedItems())}
+				clipboard={setMoveTargets}
 			/>
 		);
 		else return (
