@@ -1,4 +1,4 @@
-import { Download, MoreVert, Delete, DriveFileMove } from "@mui/icons-material";
+import { Download, MoreVert, Delete, ContentCut, ContentPaste } from "@mui/icons-material";
 import { Toolbar, Box, Tooltip, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useState } from "react";
 import { SingleLine } from "./SingleLine";
@@ -29,11 +29,20 @@ export function SelectionToolbar(props: {
 			</Tooltip>
 			<Tooltip title={'Move selected'}>
 				<span>
-					<IconButton onClick={props.move} disabled={props.disabled}>
-						<DriveFileMove/>
+					<IconButton onClick={props.clipboard} disabled={props.disabled}>
+						<ContentCut/>
 					</IconButton>
 				</span>
 			</Tooltip>
+			{
+				props.enableMove && <Tooltip title={'Move to here'}>
+					<span>
+						<IconButton onClick={props.move} disabled={props.disabled}>
+							<ContentPaste/>
+						</IconButton>
+					</span>
+				</Tooltip>
+			}
 			<IconButton onClick={(e) => setAnchor(e.currentTarget)} disabled={props.disabled}>
 				<MoreVert/>
 			</IconButton>
