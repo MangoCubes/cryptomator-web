@@ -1,7 +1,7 @@
-import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload } from "@mui/icons-material";
+import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload, ContentPaste } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
-import { Item, ItemPath, Vault } from "cryptomator-ts";
+import { Directory, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
@@ -233,6 +233,18 @@ export function FileBrowser(props: {
 		}
 		return count === 3;
 	}
+
+	const moveSelected = async () => {
+		setQuerying(Querying.Partial);
+		const move = async (file: Item) => {
+			const newFileName = `/${dir.join('/')}/${file.name}`;
+			await props.client.move(file.fullName, newFileName);
+		}
+		await Promise.all(clipboard.map(i => move(i)));
+		setQuerying(Querying.None);
+		setClipboard([]);
+		await reload();
+	}
 	
 	const toolbar = () => {
 		if(sel.length) return (
@@ -245,9 +257,7 @@ export function FileBrowser(props: {
 				download={downloadSelected}
 				disabled={querying !== Querying.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				move={() => setClipboard(getSelectedItems())}
 				clipboard={() => setClipboard(getSelectedItems())}
-				enableMove={clipboard.length !== 0}
 			/>
 		);
 		else return (
@@ -260,6 +270,15 @@ export function FileBrowser(props: {
 				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
+				{
+					clipboard.length !== 0 && <Tooltip title={'Move to here'}>
+						<span>
+							<IconButton onClick={moveSelected} disabled={querying !== Querying.None}>
+								<ContentPaste/>
+							</IconButton>
+						</span>
+					</Tooltip>
+				}
 				<Tooltip title='Refresh'>
 					<span>
 						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>

@@ -7,11 +7,9 @@ export function SelectionToolbar(props: {
 	selected: number,
 	del: () => void,
 	download: () => void,
-	move: () => void,
 	disabled: boolean,
 	disableDownloadOnly: boolean,
-	clipboard: () => void,
-	enableMove: boolean
+	clipboard: () => void
 }){
 
 	const [anchor, setAnchor] = useState<null | HTMLElement>(null);
@@ -34,15 +32,6 @@ export function SelectionToolbar(props: {
 					</IconButton>
 				</span>
 			</Tooltip>
-			{
-				props.enableMove && <Tooltip title={'Move to here'}>
-					<span>
-						<IconButton onClick={props.move} disabled={props.disabled}>
-							<ContentPaste/>
-						</IconButton>
-					</span>
-				</Tooltip>
-			}
 			<IconButton onClick={(e) => setAnchor(e.currentTarget)} disabled={props.disabled}>
 				<MoreVert/>
 			</IconButton>

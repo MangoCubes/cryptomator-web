@@ -1,4 +1,4 @@
-import { Add, ArrowBack, Article, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
+import { Add, ArrowBack, Article, ContentPaste, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typography, Backdrop } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, ProgressCallback, Vault } from "cryptomator-ts";
@@ -287,12 +287,11 @@ export function VaultBrowser(props: {
 		await reload();
 	}
 
-	const moveSelected = async (target: DirID) => {
+	const moveSelected = async () => {
 		setQuerying({status: QueryStatus.Partial});
-		const targets = getSelectedItems();
-		await Vault.move(targets, target);
+		await Vault.move(clipboard, dir[dir.length - 1].id);
 		setQuerying({status: QueryStatus.None});
-		setSel([]);
+		setClipboard([]);
 		await reload();
 	}
 
@@ -307,9 +306,7 @@ export function VaultBrowser(props: {
 				download={() => props.download(getSelectedItems(), props.vault)}
 				disabled={querying.status !== QueryStatus.None}
 				disableDownloadOnly={getSelectedItems().some(v => v.type === 'd')}
-				move={() => setClipboard(getSelectedItems())}
 				clipboard={() => setClipboard(getSelectedItems())}
-				enableMove={clipboard.length !== 0}
 			/>
 		);
 		else return (
@@ -322,6 +319,15 @@ export function VaultBrowser(props: {
 				<IconButton disabled={querying.status !== QueryStatus.None} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
+				{
+					clipboard.length !== 0 && <Tooltip title={'Move to here'}>
+						<span>
+							<IconButton onClick={moveSelected} disabled={querying.status !== QueryStatus.None}>
+								<ContentPaste/>
+							</IconButton>
+						</span>
+					</Tooltip>
+				}
 				<Tooltip title='Refresh'>
 					<span>
 						<IconButton edge='end' onClick={reload} disabled={querying.status !== QueryStatus.None}>
