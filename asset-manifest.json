@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/cryptomator-web/static/css/main.e6c13ad2.css",
-    "main.js": "/cryptomator-web/static/js/main.019c9e46.js",
+    "main.js": "/cryptomator-web/static/js/main.ebc707fd.js",
     "static/js/787.a8c50a3f.chunk.js": "/cryptomator-web/static/js/787.a8c50a3f.chunk.js",
     "index.html": "/cryptomator-web/index.html",
     "main.e6c13ad2.css.map": "/cryptomator-web/static/css/main.e6c13ad2.css.map",
-    "main.019c9e46.js.map": "/cryptomator-web/static/js/main.019c9e46.js.map",
+    "main.ebc707fd.js.map": "/cryptomator-web/static/js/main.ebc707fd.js.map",
     "787.a8c50a3f.chunk.js.map": "/cryptomator-web/static/js/787.a8c50a3f.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.019c9e46.js"
+    "static/js/main.ebc707fd.js"
   ]
 }
