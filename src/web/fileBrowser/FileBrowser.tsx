@@ -1,6 +1,6 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload, ContentPaste } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
-import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem } from "@mui/x-data-grid";
+import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem, GridValueFormatterParams } from "@mui/x-data-grid";
 import { Directory, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
@@ -94,6 +94,12 @@ export function FileBrowser(props: {
 			else return <Article/>;
 		}},
 		{field: 'name', headerName: 'Name', flex: 3},
+		{
+			field: 'lastMod',
+			headerName: 'Last Modified',
+			flex: 4,
+			valueFormatter: (params: GridValueFormatterParams<Date>) => params.value.toLocaleString()
+		},
 		{
 			field: 'actions',
 			type: 'actions',
@@ -217,7 +223,8 @@ export function FileBrowser(props: {
 				id: item.fullName,
 				name: item.name,
 				type: item.type,
-				obj: item
+				obj: item,
+				lastMod: item.lastMod
 			});
 		}
 		return rows;

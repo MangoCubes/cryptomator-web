@@ -16,6 +16,7 @@ Access Cryptomator vault without installing a program on your PC. Useful if you 
  - [x] Basic directory manager
  - [x] Create vault
  - [x] Upload files into normal FS and Cryptomator FS
+ - [x] Move files around in both FS
 
 Please suggest a feature to implement via issue tracker.
 
