@@ -62,6 +62,7 @@ enum Dialog {
 type Clipboard = {
 	items: EncryptedItem[];
 	exclude: DirID[];
+	from: DirID;
 }
 
 /**
@@ -304,6 +305,7 @@ export function VaultBrowser(props: {
 		setQuerying({status: QueryStatus.Partial});
 		await Vault.move(clipboard.items, dir[dir.length - 1].id);
 		setQuerying({status: QueryStatus.None});
+		loadItems(clipboard.from, true);
 		setClipboard(null);
 		await reload();
 	}
@@ -314,7 +316,8 @@ export function VaultBrowser(props: {
 		setSel([]);
 		setClipboard({
 			items: items,
-			exclude: await Promise.all(dirs.map(d => d.getDirId()))
+			exclude: await Promise.all(dirs.map(d => d.getDirId())),
+			from: dir[dir.length - 1]?.id ?? '' as DirID
 		});
 	}
 
