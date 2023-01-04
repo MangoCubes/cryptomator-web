@@ -1,6 +1,6 @@
 import { Add, ArrowBack, Article, ContentPaste, Delete, Download, Folder, Refresh, Upload } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typography, Backdrop } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel, GridValueFormatterParams } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, ProgressCallback, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
@@ -101,6 +101,12 @@ export function VaultBrowser(props: {
 		}},
 		{field: 'name', headerName: 'Name', flex: 3},
 		{
+			field: 'lastMod',
+			headerName: 'Last Modified',
+			flex: 4,
+			valueFormatter: (params: GridValueFormatterParams<Date>) => params.value?.toLocaleString()
+		},
+		{
 			field: 'actions',
 			type: 'actions',
 			getActions: (params: GridRowParams) => {
@@ -162,7 +168,8 @@ export function VaultBrowser(props: {
 				id: item.fullName,
 				name: item.decryptedName,
 				type: item.type,
-				obj: item
+				obj: item,
+				lastMod: item.lastMod
 			});
 		}
 		return rows;

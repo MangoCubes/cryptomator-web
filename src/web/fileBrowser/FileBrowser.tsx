@@ -98,7 +98,7 @@ export function FileBrowser(props: {
 			field: 'lastMod',
 			headerName: 'Last Modified',
 			flex: 4,
-			valueFormatter: (params: GridValueFormatterParams<Date>) => params.value.toLocaleString()
+			valueFormatter: (params: GridValueFormatterParams<Date>) => params.value?.toLocaleString()
 		},
 		{
 			field: 'actions',
