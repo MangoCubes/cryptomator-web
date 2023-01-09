@@ -2,6 +2,7 @@ import { Help } from "@mui/icons-material";
 import { Dialog, Box, DialogTitle, DialogContent, TextField, DialogActions, Button, Checkbox, FormControlLabel, DialogContentText, Stack, Tooltip, Typography } from "@mui/material";
 import { CreationStep, ExistsError, Vault } from "cryptomator-ts";
 import { useState, useEffect, FormEvent } from "react";
+import { toast } from "react-toastify";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
 
@@ -51,6 +52,7 @@ export function CreateVaultDialog(props: {open: boolean, close: () => void, dir:
 					}
 				}
 			)
+			toast.success('Successfully created vault.');
 			props.setVault(vault);
 			props.close();
 		} catch (e) {

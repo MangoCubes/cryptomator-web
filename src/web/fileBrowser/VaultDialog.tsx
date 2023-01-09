@@ -1,6 +1,7 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
 import { DecryptionError, Vault } from "cryptomator-ts";
 import { ChangeEvent, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
 export function VaultDialog(props: {open: boolean, close: () => void, dir: string[], client: WebDAV, setVault: (vault: Vault) => void}){
@@ -40,6 +41,7 @@ export function VaultDialog(props: {open: boolean, close: () => void, dir: strin
 					}
 				}
 			));
+			toast.success('Successfully decrypted vault.');
 		} catch (e) {
 			if(e instanceof DecryptionError) {
 				setError(true);

@@ -3,6 +3,7 @@ import { Box, AppBar, Toolbar, Tooltip, IconButton, Stack, CircularProgress, Typ
 import { DataGrid, GridActionsCellItem, GridRenderCellParams, GridRowParams, GridSelectionModel, GridValueFormatterParams } from "@mui/x-data-grid";
 import { DirID, EncryptedDir, EncryptedItem, ItemPath, ProgressCallback, Vault } from "cryptomator-ts";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
@@ -292,22 +293,32 @@ export function VaultBrowser(props: {
 		}
 		delTargets.forEach((item, index) => tasks.push(delItem(item, discoveryCallback(index))));
 		setOpen(Dialog.DelProgress);
-		await Promise.all(tasks);
-		setQuerying({status: QueryStatus.None});
-		setOpen(Dialog.None);
-		setSel([]);
-		setDiscovery([0, 0]);
-		await reload();
+		try {
+			await Promise.all(tasks);
+			setSel([]);
+			await reload();
+		} catch (e) {
+			toast.error('Failed to delete items.');
+		} finally {
+			setDiscovery([0, 0]);
+			setOpen(Dialog.None);
+			setQuerying({status: QueryStatus.None});
+		}
 	}
 
 	const moveSelected = async () => {
 		if(!clipboard) return;
 		setQuerying({status: QueryStatus.Partial});
-		await Vault.move(clipboard.items, dir[dir.length - 1].id);
-		setQuerying({status: QueryStatus.None});
-		loadItems(clipboard.from, true);
-		setClipboard(null);
-		await reload();
+		try {
+			await Vault.move(clipboard.items, dir[dir.length - 1].id);
+			loadItems(clipboard.from, true);
+			setClipboard(null);
+			await reload();
+		} catch (e) {
+			toast.success('Failed to move items.');
+		} finally {
+			setQuerying({status: QueryStatus.None});
+		}
 	}
 
 	const setMoveTargets = async () => {
