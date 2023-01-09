@@ -1,5 +1,5 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload, ContentPaste } from "@mui/icons-material";
-import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/material";
+import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Badge } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem, GridValueFormatterParams } from "@mui/x-data-grid";
 import { Directory, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
@@ -197,6 +197,7 @@ export function FileBrowser(props: {
 		setOpen(Dialog.None);
 		try{
 			await Promise.all(tasks);
+			toast.success(`Successfully deleted ${delTargets.length} items.`);
 			setSel([]);
 			await reload();
 		} catch (e) {
@@ -261,6 +262,7 @@ export function FileBrowser(props: {
 		}
 		try {
 			await Promise.all(clipboard.items.map(i => move(i)));
+			toast.success(`Successfully moved ${clipboard.items.length} items.`);
 			loadItems(clipboard.from, true);
 			setClipboard(null);
 			await reload();
@@ -286,6 +288,25 @@ export function FileBrowser(props: {
 		const current = '/' + dir.join('/');
 		return !clipboard?.exclude.some(d => current.startsWith(d));
 	}
+
+	const pasteButton = () => {
+		const enabled = canBeMoved();
+		let msg;
+		if(!clipboard || clipboard.items.length === 0) msg = 'No items selected';
+		else if(!enabled) msg = 'Cannot move folders into itself';
+		else msg = 'Move to here';
+		return (
+			<Tooltip title={msg}>
+				<span>
+					<IconButton onClick={moveSelected} disabled={querying !== Querying.None || !canBeMoved() || !clipboard}>
+						<Badge badgeContent={clipboard?.items.length ?? 0} color='primary'>
+							<ContentPaste/>
+						</Badge>
+					</IconButton>
+				</span>
+			</Tooltip>
+		)
+	}
 	
 	const toolbar = () => {
 		if(sel.length) return (
@@ -305,21 +326,13 @@ export function FileBrowser(props: {
 			<Toolbar>
 				<SingleLine variant='h5'>{dir.length === 0 ? 'Root' : dir[dir.length - 1]}</SingleLine>
 				<Box sx={{flex: 1}}/>
-				<IconButton disabled={querying !== Querying.None} onClick={e => setOpen(Dialog.Upload)}>
+				<IconButton disabled={querying !== Querying.None} onClick={() => setOpen(Dialog.Upload)}>
 					<Upload/>
 				</IconButton>
 				<IconButton disabled={querying !== Querying.None} onClick={e => setMenu(e.currentTarget)}>
 					<Add/>
 				</IconButton>
-				{
-					clipboard && <Tooltip title={'Move to here'}>
-						<span>
-							<IconButton onClick={moveSelected} disabled={querying !== Querying.None || !canBeMoved()}>
-								<ContentPaste/>
-							</IconButton>
-						</span>
-					</Tooltip>
-				}
+				{pasteButton()}
 				<Tooltip title='Refresh'>
 					<span>
 						<IconButton edge='end' onClick={reload} disabled={querying !== Querying.None}>
