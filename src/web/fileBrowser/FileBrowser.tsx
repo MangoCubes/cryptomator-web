@@ -254,11 +254,16 @@ export function FileBrowser(props: {
 			const newFileName = `/${dir.join('/')}/${file.name}`;
 			await props.client.move(file.fullName, newFileName);
 		}
-		await Promise.all(clipboard.items.map(i => move(i)));
-		setQuerying(Querying.None);
-		loadItems(clipboard.from, true);
-		setClipboard(null);
-		await reload();
+		try {
+			await Promise.all(clipboard.items.map(i => move(i)));
+			loadItems(clipboard.from, true);
+			setClipboard(null);
+			await reload();
+		} catch (e) {
+			console.log(e);
+		} finally {
+			setQuerying(Querying.None);
+		}
 	}
 
 	const setMoveTargets = () => {
