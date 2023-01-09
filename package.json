@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-scripts": "5.0.1",
+    "react-toastify": "^9.1.1",
     "scrypt-js": "^3.0.1",
     "stream": "^0.0.2",
     "stream-browserify": "^3.0.0",

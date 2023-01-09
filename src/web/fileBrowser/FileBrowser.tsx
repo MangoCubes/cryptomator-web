@@ -3,6 +3,7 @@ import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom } from "@mui/mater
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem, GridValueFormatterParams } from "@mui/x-data-grid";
 import { Directory, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
+import { toast } from "react-toastify";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { DirCache, ExpStatus } from "../../types/types";
 import { ItemDownloader } from "../ItemDownloader";
@@ -173,8 +174,6 @@ export function FileBrowser(props: {
 		setDir(newDir);
 		setQuerying(Querying.None);
 	}
-	
-	
 
 	const getSelectedItems = () => {
 		const targets = [];
@@ -196,10 +195,16 @@ export function FileBrowser(props: {
 		const tasks: Promise<void>[] = [];
 		for(const t of delTargets) tasks.push(delItem(t));
 		setOpen(Dialog.None);
-		await Promise.all(tasks);
-		setQuerying(Querying.None);
-		setSel([]);
-		await reload();
+		try{
+			await Promise.all(tasks);
+			setSel([]);
+			await reload();
+		} catch (e) {
+			toast.error('Failed to delete items.');
+		} finally {
+			setQuerying(Querying.None);
+		}
+		
 	}
 
 	const reload = async () => {
@@ -260,7 +265,7 @@ export function FileBrowser(props: {
 			setClipboard(null);
 			await reload();
 		} catch (e) {
-			console.log(e);
+			toast.error('Failed to move items.');
 		} finally {
 			setQuerying(Querying.None);
 		}

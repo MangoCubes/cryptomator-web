@@ -2,6 +2,7 @@ import { Help } from "@mui/icons-material";
 import { Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FormEvent, useState } from "react";
+import { toast } from "react-toastify";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 
@@ -29,6 +30,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 			sessionStorage.setItem('url', url);
 			sessionStorage.setItem('username', username);
 			props.setClient(client);
+			toast.success('Login successful.');
 		} catch (e) {
 			let err = LoginErr.Unknown;
 			if(e instanceof Error){
