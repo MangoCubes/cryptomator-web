@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, CircularProgress, DialogContentText } from "@mui/material";
+import { CircularProgress, Dialog, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 
 export function DeleteProgressDialog(props: {open: boolean, discovered: number, toDiscover: number}){
 	return (

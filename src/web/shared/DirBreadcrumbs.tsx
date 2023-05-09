@@ -1,4 +1,4 @@
-import { Link, Box, Breadcrumbs, styled } from "@mui/material";
+import { Box, Breadcrumbs, Link, styled } from "@mui/material";
 import { SingleLine } from "./SingleLine";
 
 const SingleLineLink = styled(Link)({

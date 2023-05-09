@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemText, LinearProgress, Typography, Box, Stack } from "@mui/material";
+import { LinearProgress, List, ListItem, ListItemText, Stack, Typography } from "@mui/material";
 import { SingleLine } from "./SingleLine";
 import { FileData, UploadProgress, UploadStatus } from "./UploadDialog";
 

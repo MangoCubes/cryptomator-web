@@ -1,5 +1,4 @@
-import { EncryptedFile, Item } from "cryptomator-ts";
-import { WebDAV } from "../lib/cryptomator/WebDAV";
+import { DataProvider, EncryptedFile, Item } from "cryptomator-ts";
 import { saveAs } from "file-saver";
 
 export enum Progress{
@@ -17,7 +16,7 @@ type ProgressData = {
 
 export class ItemDownloader{
 	progress: ProgressData
-	constructor(public item: Item, public client: WebDAV, public updater: (downloader: ItemDownloader) => void, progress?: ProgressData){
+	constructor(public item: Item, public client: DataProvider, public updater: (downloader: ItemDownloader) => void, progress?: ProgressData){
 		this.progress = progress ?? { current: Progress.Running };
 		if (this.progress.current === Progress.Running) this.start();
 		else if(this.progress.current === Progress.Done) saveAs(new Blob([this.progress.data]), this.progress.name);

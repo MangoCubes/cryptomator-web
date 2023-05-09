@@ -1,8 +1,7 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from "@mui/material";
-import { DirID, EncryptedFile, ProgressCallback, Vault } from "cryptomator-ts";
-import { useCallback, useEffect, useState } from "react"
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { DataProvider, DirID, EncryptedFile, ProgressCallback, Vault } from "cryptomator-ts";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from 'react-dropzone';
-import { WebDAV } from "../../lib/cryptomator/WebDAV";
 import { FileList } from "./FileList";
 
 export type FileData = {
@@ -24,7 +23,7 @@ export type UploadProgress = {
 
 export type UploadDest = {
 	encrypted: false;
-	client: WebDAV;
+	client: DataProvider;
 	currentPath: string;
 } | {
 	encrypted: true;

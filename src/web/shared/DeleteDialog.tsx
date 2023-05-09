@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { Item, EncryptedItemBase } from "cryptomator-ts";
+import { EncryptedItemBase, Item } from "cryptomator-ts";
 import { useState } from "react";
 
 export function DeleteDialog(props: {open: boolean, close: () => void, del: () => Promise<void>, targets: Item[]}){

@@ -1,7 +1,7 @@
 import { ArrowBack, Folder, Article, Refresh, Lock, LockOpen, Key, Download, Delete, Add, Upload, ContentPaste } from "@mui/icons-material";
 import { Box, AppBar, Toolbar, IconButton, Tooltip, Fab, Zoom, Badge } from "@mui/material";
 import { GridSelectionModel, DataGrid, GridRowParams, GridRenderCellParams, GridActionsCellItem, GridValueFormatterParams } from "@mui/x-data-grid";
-import { Directory, Item, ItemPath, Vault } from "cryptomator-ts";
+import { DataProvider, Directory, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
 import { WebDAV } from "../../lib/cryptomator/WebDAV";
@@ -54,7 +54,7 @@ type Clipboard = {
 }
 
 export function FileBrowser(props: {
-	client: WebDAV,
+	client: DataProvider,
 	setVault: (vault: Vault) => void,
 	download: (item: Item[]) => void,
 	logout: () => void,

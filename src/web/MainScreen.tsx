@@ -1,9 +1,8 @@
-import { Item, ItemPath, Vault } from "cryptomator-ts";
+import { DataProvider, Item, ItemPath, Vault } from "cryptomator-ts";
 import { useState } from "react";
-import { WebDAV } from "../lib/cryptomator/WebDAV";
-import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { ItemDownloader, Progress } from "./ItemDownloader";
 import { Login } from "./Login";
+import { FileBrowser } from "./fileBrowser/FileBrowser";
 import { DownloadProgress } from "./sidebar/DownloadProgress";
 import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
 
@@ -16,7 +15,7 @@ import { VaultBrowser } from "./vaultBrowser/VaultBrowser";
 
 export function MainScreen(){
 
-	const [client, setClient] = useState<null | WebDAV>(null);
+	const [client, setClient] = useState<null | DataProvider>(null);
 	const [vault, setVault] = useState<Vault | null>(null);
 	const [downloads, setDownloads] = useState<{[path: ItemPath]: ItemDownloader}>({});
 	const [open, setOpen] = useState(false);

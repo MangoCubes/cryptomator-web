@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, Box } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { FormEvent, useEffect, useState } from "react";
 
 export function FolderDialog(props: {open: boolean, close: () => void, create: (name: string) => Promise<void>}){

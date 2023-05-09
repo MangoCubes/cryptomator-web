@@ -1,10 +1,9 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
-import { DecryptionError, Vault } from "cryptomator-ts";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { DataProvider, DecryptionError, Vault } from "cryptomator-ts";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { WebDAV } from "../../lib/cryptomator/WebDAV";
 
-export function VaultDialog(props: {open: boolean, close: () => void, dir: string[], client: WebDAV, setVault: (vault: Vault) => void}){
+export function VaultDialog(props: {open: boolean, close: () => void, dir: string[], client: DataProvider, setVault: (vault: Vault) => void}){
 
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState(false);

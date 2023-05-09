@@ -1,6 +1,6 @@
 import { ChevronRight, Download, ExpandMore, Logout } from "@mui/icons-material";
 import { TreeItem, TreeView } from "@mui/lab";
-import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
+import { Badge, Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar } from "@mui/material";
 import { Item, ItemPath } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
 import { DirCache, ExpStatus } from "../../types/types";

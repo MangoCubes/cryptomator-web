@@ -1,11 +1,10 @@
 import { ClearAll } from "@mui/icons-material";
-import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, IconButton, Tooltip } from "@mui/material";
-import { ItemPath } from "cryptomator-ts";
-import { WebDAV } from "../../lib/cryptomator/WebDAV";
+import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemText, Toolbar, Tooltip } from "@mui/material";
+import { DataProvider, ItemPath } from "cryptomator-ts";
 import { ItemDownloader, Progress } from "../ItemDownloader";
 import { DownloadListItem } from "./DownloadListItem";
 
-export function DownloadProgress(props: {open: boolean, client: WebDAV, onClose: () => void, downloads: {[path: ItemPath]: ItemDownloader}, clear: () => void}){
+export function DownloadProgress(props: {open: boolean, client: DataProvider, onClose: () => void, downloads: {[path: ItemPath]: ItemDownloader}, clear: () => void}){
 
 	const genList = () => {
 		const listItems = [];

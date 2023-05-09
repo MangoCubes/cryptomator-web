@@ -1,5 +1,5 @@
 import { CreateNewFolder, EnhancedEncryption } from "@mui/icons-material";
-import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 
 export function AddMenu(props: {
 	createVault?: () => void,

@@ -1,12 +1,12 @@
 import { ChevronRight, Download, ExpandMore, Lock } from "@mui/icons-material";
-import { Drawer, Toolbar, ListItem, ListItemText, Divider, Box, List, ListItemButton, ListItemIcon, Badge } from "@mui/material";
-import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
-import { ItemDownloader, Progress } from "../ItemDownloader";
-import { DirCache, ExpStatus } from "../../types/types";
-import { DirInfo } from "./VaultBrowser";
 import { TreeItem, TreeView } from "@mui/lab";
+import { Badge, Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar } from "@mui/material";
+import { DirID, EncryptedDir, EncryptedItem, ItemPath, Vault } from "cryptomator-ts";
 import { SyntheticEvent, useState } from "react";
+import { DirCache, ExpStatus } from "../../types/types";
+import { ItemDownloader, Progress } from "../ItemDownloader";
 import { AsyncSidebarItem } from "./AsyncSidebarItem";
+import { DirInfo } from "./VaultBrowser";
 
 export function VaultSidebar(props: {
 	vault: Vault,
