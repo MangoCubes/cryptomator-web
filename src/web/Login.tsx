@@ -72,6 +72,8 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 						<TextField required disabled={querying} error={error === LoginErr.Incorrect} helperText={error === LoginErr.Incorrect ? 'Incorrect username or password.' : ' '} variant='standard' label='Password' type='password' value={password} onChange={(e) => setPassword(e.currentTarget.value)}/>
 						<Button disabled={querying} type='submit' fullWidth>Connect</Button>
 					</Stack>
+					{/*It can't hurt to expose this client ID, right?*/}
+					<Button disabled={querying} fullWidth href='https://login.live.com/oauth20_authorize.srf?client_id=74235426-e0dd-4410-8eb0-a83cecbb541e&scope=api://74235426-e0dd-4410-8eb0-a83cecbb541e/onedrive.full&response_type=token&redirect_uri=http://localhost:3000/cryptomator-web'>Use OneDrive Instead</Button>
 				</CardContent>
 			</Card>
 			<UrlHelperDialog open={open} close={() => setOpen(false)} setUrl={setUrl}/>
