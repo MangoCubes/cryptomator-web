@@ -22,6 +22,7 @@ Please suggest a feature to implement via issue tracker.
 
 ## Supported protocols/providers
  - [x] WebDAV
+ - [ ] OneDrive (In progress)
  - [ ] Google Drive
  - [ ] S3
  - [ ] Dropbox
