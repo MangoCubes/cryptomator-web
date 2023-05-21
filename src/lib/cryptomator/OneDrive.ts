@@ -1,25 +1,34 @@
 import { DataProvider, Item, ProgressCallback } from "cryptomator-ts";
 
-/**
- * Looks like onedrive-api lacks typing. Damn.
- */
-const oneDriveAPI = require("onedrive-api");
-
 export class OneDrive implements DataProvider {
     accessToken: string
+    url: string = "https://graph.microsoft.com/v1.0/me/drive/"
     constructor(accessToken: string){
 		this.accessToken = accessToken;
 	}
     async readFileString(path: string, progress?: ProgressCallback | undefined): Promise<string> {
-        const res: ReadableStream = await oneDriveAPI.items.download({
-            accessToken: this.accessToken,
-            itemPath: path
-        });
-		if(typeof(res) === 'string') return res;
 		throw new Error('Not implemented')
     }
     async listItems(path: string): Promise<Item[]> {
-        throw new Error('Not implemented')
+        const endpoint = (path === "/") ? "root/children" : `root:${path}:/children`
+        const req = await fetch(this.url + endpoint, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + this.accessToken
+            },
+        });
+        if(!req.ok) throw new Error(`Request failed: ${req.statusText}`);
+        const items = await req.json();
+        const ret: Item[] = [];
+        for(const item of items.value){
+            ret.push({
+                name: item.name,
+                fullName: item.parentReference.path.split(":")[1],
+                lastMod: item.createdDateTime,
+                type: item.hasOwnProperty("folder") ? "d" : "f"
+            });
+        }
+        return ret;
     }
     async readFile(path: string, progress?: ProgressCallback | undefined): Promise<Uint8Array> {
         throw new Error('Not implemented')
