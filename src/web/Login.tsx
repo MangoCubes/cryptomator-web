@@ -1,19 +1,20 @@
 import { Help } from "@mui/icons-material";
 import { Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
 import * as msal from "@azure/msal-browser";
 import { OneDrive } from "../lib/cryptomator/OneDrive";
+import { DataProvider } from "cryptomator-ts";
 
 enum LoginErr {
 	Incorrect,
 	Unknown
 }
 
-export function Login(props: {setClient: (client: WebDAV) => void}){
+export function Login(props: {setClient: (client: DataProvider) => void}){
 
 	const [url, setUrl] = useState(sessionStorage.getItem('url') ?? '');
 	const [username, setUsername] = useState(sessionStorage.getItem('username') ?? '');
@@ -22,15 +23,46 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 	const [open, setOpen] = useState(false);
 	const [error, setError] = useState<LoginErr | null>(null);
 
+	const ms = useRef(new msal.PublicClientApplication({
+		auth: {
+			// 'Application (client) ID' of app registration in Azure portal - this value is a GUID
+			clientId: "6ccd6889-cbd2-4800-a0ef-d2d54f784e16",
+			// Full redirect URL, in form of http://localhost:3000
+			redirectUri: "http://localhost:3000",
+
+		},
+		cache: {
+			cacheLocation: "sessionStorage", // This configures where your cache will be stored
+			storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+		}
+	}))
+
 	const login = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setQuerying(true);
 		setError(null);
 		const client = new WebDAV(url, username, password);
+		sessionStorage.setItem('url', url);
+		sessionStorage.setItem('username', username);
+		verifyClient(client);
+	}
+
+	const oneDriveLogin = async () => {
+		try{
+			setQuerying(true);
+			const token = await ms.current.acquireTokenPopup({
+				scopes: ['files.readwrite']
+			});
+			const client = new OneDrive(token.accessToken);
+			verifyClient(client);
+		} catch (e) {
+			setQuerying(false);
+		}
+	}
+
+	const verifyClient = async (client: DataProvider) => {
 		try {
 			await client.listItems('/'); // Test query
-			sessionStorage.setItem('url', url);
-			sessionStorage.setItem('username', username);
 			props.setClient(client);
 			toast.success('Login successful.');
 		} catch (e) {
@@ -43,38 +75,10 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 		}
 	}
 
-	const oneDriveLogin = async () => {
-		const token = await ms.acquireTokenPopup({
-			scopes: ['files.readwrite']
-		});
-		console.log(token)
-		const client = new OneDrive(token.accessToken);
-	}
-
-	const verifyClient = async (onError: () => void) => {
-
-	}
-
 	const getHelperText = () => {
 		if(error === LoginErr.Unknown) return 'Cannot connect to server. Check the entered URL, or check CORS policy.';
 		else return ' ';
 	}
-
-	const msalConfig: msal.Configuration = {
-		auth: {
-			// 'Application (client) ID' of app registration in Azure portal - this value is a GUID
-			clientId: "6ccd6889-cbd2-4800-a0ef-d2d54f784e16",
-			// Full redirect URL, in form of http://localhost:3000
-			redirectUri: "http://localhost:3000",
-
-		},
-		cache: {
-			cacheLocation: "sessionStorage", // This configures where your cache will be stored
-			storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
-		}
-	};
-
-	const ms = new msal.PublicClientApplication(msalConfig);
 
 	return (
 		<Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
