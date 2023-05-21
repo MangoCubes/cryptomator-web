@@ -67,8 +67,11 @@ export class OneDrive implements DataProvider {
         });
         if(!req.ok) throw new Error(`Request failed: ${req.statusText}`);
     }
-    
+
     async createDir(path: string, recursive?: boolean | undefined): Promise<void> {
+        // Apparently, the directory creation is recursive by default.
+        // If the location variable below points to a nonexistent directory, it will just create them.
+        // However, a body indicating a folder must be in there.
         const lastLoc = path.lastIndexOf("/");
         const location = path.slice(0, lastLoc);
         const endpoint = location.length === 0 ? "root/children" : `root:${location}:/children`;
@@ -86,19 +89,53 @@ export class OneDrive implements DataProvider {
         });
         if(!req.ok) throw new Error(`Request failed: ${req.statusText}`);
     }
+
     async removeFile(path: string): Promise<void> {
-        
+        const req = await fetch(this.url + `root:${path}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + this.accessToken
+            },
+        });
+        if(!req.ok) throw new Error(`Request failed: ${req.statusText}`);
     }
+
     async removeDir(path: string): Promise<void> {
-        
+        await this.removeFile(path);
     }
+
     async exists(path: string): Promise<boolean> {
-        throw new Error('Not implemented')
+        const req = await fetch(this.url + `root:${path}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + this.accessToken
+            },
+        });
+        const msg = await req.json()
+        if(msg.error?.code === "itemNotFound") return false;
+        else if(msg.createdDateTime) return true;
+        else throw new Error(`Request failed: ${req.statusText}`);
     }
+
     async rename(path: string, newPath: string): Promise<void> {
-        
+        const lastLoc = newPath.lastIndexOf("/");
+        const location = newPath.slice(0, lastLoc);
+        await fetch(this.url + `root:${path}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + this.accessToken,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                parentReference: {
+                    path: location.length === 0 ? `/drive/root` : `/drive/root/:${location}`
+                },
+                name: newPath.slice(lastLoc + 1)
+            })
+        });
     }
+
     async move(path: string, newPath: string): Promise<void> {
-        
+        await this.rename(path, newPath)
     }
 }

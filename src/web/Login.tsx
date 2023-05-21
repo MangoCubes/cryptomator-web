@@ -28,7 +28,7 @@ export function Login(props: {setClient: (client: DataProvider) => void}){
 			// 'Application (client) ID' of app registration in Azure portal - this value is a GUID
 			clientId: "6ccd6889-cbd2-4800-a0ef-d2d54f784e16",
 			// Full redirect URL, in form of http://localhost:3000
-			redirectUri: "http://localhost:3000",
+			redirectUri: "https://mangocubes.github.io/cryptomator-web",
 
 		},
 		cache: {
