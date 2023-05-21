@@ -5,6 +5,8 @@ import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { WebDAV } from "../lib/cryptomator/WebDAV";
 import { UrlHelperDialog } from "./helperDialog/UrlHelperDialog";
+import * as msal from "@azure/msal-browser";
+import { OneDrive } from "../lib/cryptomator/OneDrive";
 
 enum LoginErr {
 	Incorrect,
@@ -41,10 +43,38 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 		}
 	}
 
+	const oneDriveLogin = async () => {
+		const token = await ms.acquireTokenPopup({
+			scopes: ['files.readwrite']
+		});
+		console.log(token)
+		const client = new OneDrive(token.accessToken);
+	}
+
+	const verifyClient = async (onError: () => void) => {
+
+	}
+
 	const getHelperText = () => {
 		if(error === LoginErr.Unknown) return 'Cannot connect to server. Check the entered URL, or check CORS policy.';
 		else return ' ';
 	}
+
+	const msalConfig: msal.Configuration = {
+		auth: {
+			// 'Application (client) ID' of app registration in Azure portal - this value is a GUID
+			clientId: "6ccd6889-cbd2-4800-a0ef-d2d54f784e16",
+			// Full redirect URL, in form of http://localhost:3000
+			redirectUri: "http://localhost:3000",
+
+		},
+		cache: {
+			cacheLocation: "sessionStorage", // This configures where your cache will be stored
+			storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+		}
+	};
+
+	const ms = new msal.PublicClientApplication(msalConfig);
 
 	return (
 		<Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
@@ -72,8 +102,7 @@ export function Login(props: {setClient: (client: WebDAV) => void}){
 						<TextField required disabled={querying} error={error === LoginErr.Incorrect} helperText={error === LoginErr.Incorrect ? 'Incorrect username or password.' : ' '} variant='standard' label='Password' type='password' value={password} onChange={(e) => setPassword(e.currentTarget.value)}/>
 						<Button disabled={querying} type='submit' fullWidth>Connect</Button>
 					</Stack>
-					{/*It can't hurt to expose this client ID, right?*/}
-					<Button disabled={querying} fullWidth href='https://login.live.com/oauth20_authorize.srf?client_id=74235426-e0dd-4410-8eb0-a83cecbb541e&scope=api://74235426-e0dd-4410-8eb0-a83cecbb541e/onedrive.full&response_type=token&redirect_uri=http://localhost:3000/cryptomator-web'>Use OneDrive Instead</Button>
+					<Button disabled={querying} fullWidth onClick={oneDriveLogin}>Use OneDrive Instead</Button>
 				</CardContent>
 			</Card>
 			<UrlHelperDialog open={open} close={() => setOpen(false)} setUrl={setUrl}/>
